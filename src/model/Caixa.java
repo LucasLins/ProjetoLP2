@@ -4,6 +4,7 @@ package model;
 public class Caixa {
     
     private double saldo;
+    //array<Extrato>
 
 	
     public Caixa(double saldo) {
@@ -29,7 +30,7 @@ public class Caixa {
     public double gastar(double valor) {
 	return saldo = saldo - valor;
     }
-
+    
     public String toString() {
 	return "Caixa [Saldo= R$ " + saldo + "]";
     }   
