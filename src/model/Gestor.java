@@ -1,5 +1,5 @@
 package model;
-
+import model.Caixa;
 public class Gestor {
 
     public String nome;
@@ -72,6 +72,10 @@ public class Gestor {
 	return "Gestor: \nNome= " + nome + "\nSexo= " + sexo + "\nCPF= " + cpf + "\nTelefone= " + telefone + "\nEndereco= "
 	+ endereco;
     }
+    
+    /*public String gerarRelatorio(){
+        return Caixa.toString();
+    }*/
     
 }
 
