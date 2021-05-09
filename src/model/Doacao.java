@@ -2,15 +2,15 @@
 package model;
 
 public class Doacao {
-    Voluntario vol;
-    double doacaoDinheiro = 0;
-    String doacaoProduto;
-    int repetir; //0 = não se repetirá | 1 = se repetirar ao decorrer dos meses
-    int modoEntrega; // 0 = levará ao local | 1 = pegar no local;
-    int entregue = 0; // 0 = Entrega não foi feita | 1 = Entrega concluída
-    String data;
+    private Voluntario vol;
+    private double doacaoDinheiro = 0;
+    private String doacaoProduto;
+    private boolean repetir;
+    private String modoEntrega;
+    private boolean entregue;
+    private String data;
 
-    public Doacao(Voluntario vol, String doacaoProduto, int repetir, int modoEntrega, String data) {
+    public Doacao(Voluntario vol, String doacaoProduto, boolean repetir, String modoEntrega, String data) {
         this.vol = vol;
         this.doacaoProduto = doacaoProduto;
         this.repetir = repetir;
@@ -44,19 +44,19 @@ public class Doacao {
         this.doacaoProduto = doacaoProduto;
     }
 
-    public int getRepetir() {
+    public boolean getRepetir() {
         return repetir;
     }
 
-    public void setRepetir(int repetir) {
+    public void setRepetir(boolean repetir) {
         this.repetir = repetir;
     }
 
-    public int getModoEntrega() {
+    public String getModoEntrega() {
         return modoEntrega;
     }
 
-    public void setModoEntrega(int modoEntrega) {
+    public void setModoEntrega(String modoEntrega) {
         this.modoEntrega = modoEntrega;
     }
 
@@ -68,12 +68,12 @@ public class Doacao {
         this.data = data;
     }
 
-    public int getEntregue() {
+    public boolean getEntregue() {
         return entregue;
     }
 
-    public void setEntregue(int entregue) {
+    public void setEntregue(boolean entregue) {
         this.entregue = entregue;
     }
-        
+
 }
