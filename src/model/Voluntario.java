@@ -2,12 +2,12 @@
 package model;
 
 public class Voluntario {
-    public String nome;
-    public String sexo;
-    public String cpf;
-    public String telefone;
-    public String endereco;
-    public String turno;
+    private String nome;
+    private String sexo;
+    private String cpf;
+    private String telefone;
+    private String endereco;
+    private String turno;
 
     public Voluntario(String nome, String sexo, String cpf, String telefone, String endereco, String turno) {
         this.nome = nome;
@@ -67,5 +67,11 @@ public class Voluntario {
     public void setTurno(String turno) {
         this.turno = turno;
     }
-    
+
+    @Override
+    public String toString() {
+            return "Voluntario [nome=" + nome + ", sexo=" + sexo + ", cpf=" + cpf + ", telefone=" + telefone + ", endereco="
+                            + endereco + ", turno=" + turno + "]";
+    }
+
 }
