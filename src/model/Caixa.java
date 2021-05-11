@@ -32,7 +32,7 @@ public class Caixa {
         extrato.add(valor);
 	return saldo = saldo - valor;
     }
-
+    
     public String toString() {
 	return "Caixa:\n Saldo= R$ " + saldo + "\nExtrato:\n [" + extrato + "]";
     
