@@ -1,5 +1,6 @@
 package model;
 import model.Caixa;
+import model.Funcionario;
 public class Gestor {
 
     public String nome;
@@ -76,6 +77,12 @@ public class Gestor {
     /*public String gerarRelatorio(){
         return Caixa.toString();
     }*/
+    
+    public Funcionario cadastrarFuncionario(String nome){
+        Funcionario funcionario;
+        funcionario.setNome(nome);
+        return funcionario;
+    }
     
 }
 
