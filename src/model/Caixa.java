@@ -1,10 +1,10 @@
 package model;
-
+import java.util.ArrayList;
 
 public class Caixa {
     
     private double saldo;
-    //array<Extrato>
+    private ArrayList<Double> extrato = new ArrayList<Double>();
 
 	
     public Caixa(double saldo) {
@@ -24,16 +24,19 @@ public class Caixa {
     }
 	
     public double doar(double valor) {
+        extrato.add(valor);
 	return saldo = saldo + valor;
     }
 
     public double gastar(double valor) {
+        extrato.add(valor);
 	return saldo = saldo - valor;
     }
     
     public String toString() {
-	return "Caixa [Saldo= R$ " + saldo + "]";
-    }   
+	return "Caixa:\n Saldo= R$ " + saldo + "\nExtrato:\n [" + extrato + "]";
+    
+    }
     
     
 }
