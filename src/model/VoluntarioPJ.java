@@ -4,8 +4,8 @@ public class VoluntarioPJ extends Voluntario {
     private String cnpj;
     private String incestadual;
 
-    public VoluntarioPJ(String nome, String telefone, Endereco endereco, String cnpj, String incestadual) {
-        super(nome, telefone, endereco);
+    public VoluntarioPJ(int idConta, String nome, String telefone, Endereco endereco, String cnpj, String incestadual) {
+        super(idConta, nome, telefone, endereco);
         this.cnpj = cnpj;
         this.incestadual = incestadual;
     }

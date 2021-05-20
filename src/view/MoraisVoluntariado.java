@@ -6,6 +6,14 @@
 package view;
 
 import java.awt.Color;
+import java.util.ArrayList;
+import javax.swing.JOptionPane;
+import model.Conta;
+import model.Funcionario;
+import model.Gestor;
+import model.Voluntario;
+import model.VoluntarioPF;
+import model.VoluntarioPJ;
 
 /**
  *
@@ -16,18 +24,45 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
     /**
      * Creates new form TelaLogin
      */
+	boolean connected = false;
+	private Funcionario userFuncionario;
+	private Gestor userGestor;
+	private VoluntarioPF userVolPF;
+	private VoluntarioPJ userVolPJ;
+	private int userId;
+	private ArrayList<Conta> listaContas = new ArrayList<Conta>();
+	private ArrayList<Funcionario> listaFuncionarios = new ArrayList<Funcionario>();
+	private ArrayList<Gestor> listaGestores = new ArrayList<Gestor>();
+	private ArrayList<Voluntario> listaVoluntarios = new ArrayList<Voluntario>();
+	
     public MoraisVoluntariado() {
         initComponents();
 		resetLayers();
 		loginPanel.setVisible(true);
+		
+		listaContas.add(new Conta(0, "lucaslins", "88219442", "Funcionário"));
+		listaContas.add(new Conta(1, "lucaslins2", "88219442", "VoluntárioPF"));
+		listaContas.add(new Conta(1, "lucaslins3", "88219442", "VoluntárioPJ"));
+		listaFuncionarios.add(new Funcionario(0, "Lucas Lins", "Masculino", "123456789", "88219442", null));
+		listaVoluntarios.add(new VoluntarioPF(1, "Alana Morais", "88219442", null, "123456789", "Feminino", "Manhã"));
+		listaVoluntarios.add(new VoluntarioPJ(2, "Alana Morais", "88219442", null, "123456789", "5431234"));
     }
 	
 	public void resetLayers(){
+		ldFuncionario.setVisible(false);
+		ldMenus.setVisible(false);
 		loginPanel.setVisible(false);
-		pnFuncionario.setVisible(false);
-		pnCdVol.setVisible(false);
-		pnFuncMain.setVisible(false);
 	}
+	
+	public void enableFuncionario(){
+		ldFuncionario.setVisible(true);
+		ldMenus.setVisible(true);
+		pnFuncMain.setVisible(true); // Paginá principal Funcionário
+		pnFuncionario.setVisible(true); // Menu Funcionário
+		taInfoFuncionario.setText(userFuncionario.toString());
+	}
+	
+	
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -50,18 +85,21 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
         lbTituloFuncionario = new javax.swing.JLabel();
         btEntregas = new keeptoo.KButton();
         btCadastroVoluntario = new keeptoo.KButton();
-        btFuncLogout = new keeptoo.KButton();
+        btFuncInicio = new keeptoo.KButton();
         btCadastroEvento = new keeptoo.KButton();
         btCadastroTrabalho = new keeptoo.KButton();
         btAceitarDoacao = new keeptoo.KButton();
         btRemoverVoluntario = new keeptoo.KButton();
         btRelatorios = new keeptoo.KButton();
         btImportarDados = new keeptoo.KButton();
+        btFuncLogout1 = new keeptoo.KButton();
         ldFuncionario = new javax.swing.JLayeredPane();
         pnFuncMain = new javax.swing.JPanel();
         pnMainTitle = new keeptoo.KGradientPanel();
         jLabel2 = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        taInfoFuncionario = new javax.swing.JTextArea();
         pnCdVol = new javax.swing.JPanel();
         pnCdVolTitle = new keeptoo.KGradientPanel();
         jLabel1 = new javax.swing.JLabel();
@@ -88,6 +126,7 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Morais Voluntariado");
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        setIconImages(null);
         setResizable(false);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -119,6 +158,11 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
         pfSenha.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 2, 0, new java.awt.Color(255, 255, 255)));
         pfSenha.setCaretColor(new java.awt.Color(54, 33, 89));
         pfSenha.setOpaque(false);
+        pfSenha.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                pfSenhaActionPerformed(evt);
+            }
+        });
         loginPanel.add(pfSenha, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 316, 200, 30));
 
         lbLogin.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
@@ -181,7 +225,7 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
                 btEntregasActionPerformed(evt);
             }
         });
-        pnFuncionario.add(btEntregas, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 200, 160, 40));
+        pnFuncionario.add(btEntregas, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 240, 160, 40));
 
         btCadastroVoluntario.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/addfuncionario.png"))); // NOI18N
         btCadastroVoluntario.setText("Cadastrar Voluntário");
@@ -200,26 +244,26 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
                 btCadastroVoluntarioActionPerformed(evt);
             }
         });
-        pnFuncionario.add(btCadastroVoluntario, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 40, 160, 40));
+        pnFuncionario.add(btCadastroVoluntario, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 80, 160, 40));
 
-        btFuncLogout.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/exit.png"))); // NOI18N
-        btFuncLogout.setText("Desconectar");
-        btFuncLogout.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        btFuncLogout.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        btFuncLogout.setIconTextGap(0);
-        btFuncLogout.setkBorderRadius(0);
-        btFuncLogout.setkEndColor(new java.awt.Color(233, 193, 253));
-        btFuncLogout.setkHoverEndColor(new java.awt.Color(236, 174, 243));
-        btFuncLogout.setkHoverForeGround(new java.awt.Color(153, 0, 255));
-        btFuncLogout.setkHoverStartColor(new java.awt.Color(221, 143, 253));
-        btFuncLogout.setkPressedColor(new java.awt.Color(250, 209, 254));
-        btFuncLogout.setkStartColor(new java.awt.Color(199, 96, 230));
-        btFuncLogout.addActionListener(new java.awt.event.ActionListener() {
+        btFuncInicio.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/home.png"))); // NOI18N
+        btFuncInicio.setText("Início");
+        btFuncInicio.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btFuncInicio.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btFuncInicio.setIconTextGap(0);
+        btFuncInicio.setkBorderRadius(0);
+        btFuncInicio.setkEndColor(new java.awt.Color(233, 193, 253));
+        btFuncInicio.setkHoverEndColor(new java.awt.Color(236, 174, 243));
+        btFuncInicio.setkHoverForeGround(new java.awt.Color(153, 0, 255));
+        btFuncInicio.setkHoverStartColor(new java.awt.Color(221, 143, 253));
+        btFuncInicio.setkPressedColor(new java.awt.Color(250, 209, 254));
+        btFuncInicio.setkStartColor(new java.awt.Color(199, 96, 230));
+        btFuncInicio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btFuncLogoutActionPerformed(evt);
+                btFuncInicioActionPerformed(evt);
             }
         });
-        pnFuncionario.add(btFuncLogout, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 360, 160, 40));
+        pnFuncionario.add(btFuncInicio, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 40, 160, 40));
 
         btCadastroEvento.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/new event.png"))); // NOI18N
         btCadastroEvento.setText("Cadastrar Evento");
@@ -238,7 +282,7 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
                 btCadastroEventoActionPerformed(evt);
             }
         });
-        pnFuncionario.add(btCadastroEvento, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 80, 160, 40));
+        pnFuncionario.add(btCadastroEvento, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 120, 160, 40));
 
         btCadastroTrabalho.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/new work.png"))); // NOI18N
         btCadastroTrabalho.setText("Cadastrar Trabalho");
@@ -257,7 +301,7 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
                 btCadastroTrabalhoActionPerformed(evt);
             }
         });
-        pnFuncionario.add(btCadastroTrabalho, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 120, 160, 40));
+        pnFuncionario.add(btCadastroTrabalho, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 160, 160, 40));
 
         btAceitarDoacao.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/donate.png"))); // NOI18N
         btAceitarDoacao.setText("Aceitar Doações");
@@ -276,7 +320,7 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
                 btAceitarDoacaoActionPerformed(evt);
             }
         });
-        pnFuncionario.add(btAceitarDoacao, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 160, 160, 40));
+        pnFuncionario.add(btAceitarDoacao, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 200, 160, 40));
 
         btRemoverVoluntario.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/removefuncionario.png"))); // NOI18N
         btRemoverVoluntario.setText("Remover Volutário");
@@ -295,7 +339,7 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
                 btRemoverVoluntarioActionPerformed(evt);
             }
         });
-        pnFuncionario.add(btRemoverVoluntario, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 240, 160, 40));
+        pnFuncionario.add(btRemoverVoluntario, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 280, 160, 40));
 
         btRelatorios.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/archive.png"))); // NOI18N
         btRelatorios.setText("Relatórios");
@@ -314,7 +358,7 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
                 btRelatoriosActionPerformed(evt);
             }
         });
-        pnFuncionario.add(btRelatorios, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 280, 160, 40));
+        pnFuncionario.add(btRelatorios, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 320, 160, 40));
 
         btImportarDados.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/import.png"))); // NOI18N
         btImportarDados.setText("Importar Dados");
@@ -333,7 +377,26 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
                 btImportarDadosActionPerformed(evt);
             }
         });
-        pnFuncionario.add(btImportarDados, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 320, 160, 40));
+        pnFuncionario.add(btImportarDados, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 360, 160, 40));
+
+        btFuncLogout1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/exit.png"))); // NOI18N
+        btFuncLogout1.setText("Desconectar");
+        btFuncLogout1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btFuncLogout1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btFuncLogout1.setIconTextGap(0);
+        btFuncLogout1.setkBorderRadius(0);
+        btFuncLogout1.setkEndColor(new java.awt.Color(233, 193, 253));
+        btFuncLogout1.setkHoverEndColor(new java.awt.Color(236, 174, 243));
+        btFuncLogout1.setkHoverForeGround(new java.awt.Color(153, 0, 255));
+        btFuncLogout1.setkHoverStartColor(new java.awt.Color(221, 143, 253));
+        btFuncLogout1.setkPressedColor(new java.awt.Color(250, 209, 254));
+        btFuncLogout1.setkStartColor(new java.awt.Color(199, 96, 230));
+        btFuncLogout1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btFuncLogout1ActionPerformed(evt);
+            }
+        });
+        pnFuncionario.add(btFuncLogout1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 400, 160, 40));
 
         ldMenus.add(pnFuncionario, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
 
@@ -375,15 +438,25 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
         jPanel1.setBackground(new java.awt.Color(204, 204, 204));
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Seus dados", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 11))); // NOI18N
 
+        taInfoFuncionario.setEditable(false);
+        taInfoFuncionario.setColumns(20);
+        taInfoFuncionario.setRows(5);
+        jScrollPane1.setViewportView(taInfoFuncionario);
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 608, Short.MAX_VALUE)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 588, Short.MAX_VALUE)
+                .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 417, Short.MAX_VALUE)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 203, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 214, Short.MAX_VALUE))
         );
 
         pnFuncMain.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 50, 620, 440));
@@ -450,10 +523,56 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
     }//GEN-LAST:event_tfLoginActionPerformed
 
     private void btLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btLoginActionPerformed
-        resetLayers();
-		loginPanel.setVisible(false);
-		pnFuncionario.setVisible(true);
-		pnCdVol.setVisible(true);
+		String senha = new String(pfSenha.getPassword());
+		for(int i = 0; i < listaContas.size(); i++){
+			if(tfLogin.getText().equals(listaContas.get(i).getUsuario()) && senha.equals(listaContas.get(i).getSenha())){
+				connected = true;
+				userId = i;
+				i = listaContas.size();
+			}
+		}
+		if(connected){
+			JOptionPane.showMessageDialog(rootPane, "Conectado com sucesso!", "Login", JOptionPane.INFORMATION_MESSAGE);
+			
+			if(this.listaContas.get(this.userId).getTipo().equals("Funcionário")){
+				for(int i = 0; i < this.listaFuncionarios.size(); i++){
+					if(this.listaFuncionarios.get(i).getIdConta() == this.userId){
+						this.userFuncionario = this.listaFuncionarios.get(i);
+						i = this.listaFuncionarios.size();
+						resetLayers();
+						enableFuncionario();
+					}
+				}
+			}
+			else if(this.listaContas.get(this.userId).getTipo().equals("Gestor")){
+				for(int i = 0; i < listaGestores.size(); i++){
+					if(this.listaGestores.get(i).getIdConta() == this.userId){
+						this.userGestor = this.listaGestores.get(i);
+						i = this.listaGestores.size();
+					}
+				}
+			}
+			else if(this.listaContas.get(this.userId).getTipo().equals("VoluntárioPF")){
+				for(int i = 0; i < listaVoluntarios.size(); i++){
+					if(this.listaVoluntarios.get(i).getIdConta() == this.userId){
+						this.userVolPF = (VoluntarioPF)this.listaVoluntarios.get(i);
+						i = this.listaVoluntarios.size();
+					}
+				}
+			}
+			else if(this.listaContas.get(this.userId).getTipo().equals("VoluntárioPJ")){
+				for(int i = 0; i < listaVoluntarios.size(); i++){
+					if(this.listaVoluntarios.get(i).getIdConta() == this.userId){
+						this.userVolPJ = (VoluntarioPJ)this.listaVoluntarios.get(i);
+						i = this.listaVoluntarios.size();
+					}
+				}
+			}
+		}
+		else{
+			JOptionPane.showMessageDialog(rootPane, "Usuário e/ou senha incorreto(s)!", "Login", JOptionPane.ERROR_MESSAGE);
+		}
+		
     }//GEN-LAST:event_btLoginActionPerformed
 
     private void btEntregasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btEntregasActionPerformed
@@ -464,9 +583,10 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_btCadastroVoluntarioActionPerformed
 
-    private void btFuncLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btFuncLogoutActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btFuncLogoutActionPerformed
+    private void btFuncInicioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btFuncInicioActionPerformed
+        resetLayers();
+		enableFuncionario();
+    }//GEN-LAST:event_btFuncInicioActionPerformed
 
     private void btCadastroEventoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btCadastroEventoActionPerformed
         // TODO add your handling code here:
@@ -495,6 +615,21 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
     private void btImportarDadosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btImportarDadosActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_btImportarDadosActionPerformed
+
+    private void pfSenhaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pfSenhaActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_pfSenhaActionPerformed
+
+    private void btFuncLogout1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btFuncLogout1ActionPerformed
+        Object[] botoesDesconectar = {"Desconectar", "Voltar"};
+		Object choice = JOptionPane.showOptionDialog(rootPane, "Tem certeza que deseja sair?", "Desconectar", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, botoesDesconectar, botoesDesconectar[0]);
+		if(choice.toString().equals("0")){
+			connected = false;
+			userFuncionario = null;
+			resetLayers();
+			loginPanel.setVisible(true);
+		}
+    }//GEN-LAST:event_btFuncLogout1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -530,7 +665,7 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
                 new MoraisVoluntariado().setVisible(true);
             }
         });
-    }
+	}
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private keeptoo.KButton btAceitarDoacao;
@@ -538,7 +673,8 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
     private keeptoo.KButton btCadastroTrabalho;
     private keeptoo.KButton btCadastroVoluntario;
     private keeptoo.KButton btEntregas;
-    private keeptoo.KButton btFuncLogout;
+    private keeptoo.KButton btFuncInicio;
+    private keeptoo.KButton btFuncLogout1;
     private keeptoo.KButton btImportarDados;
     private keeptoo.KButton btLogin;
     private keeptoo.KButton btLogin5;
@@ -549,6 +685,7 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lbLogin;
     private javax.swing.JLabel lbSenha;
     private javax.swing.JLabel lbTituloFuncionario;
@@ -561,6 +698,10 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
     private javax.swing.JPanel pnFuncMain;
     private keeptoo.KGradientPanel pnFuncionario;
     private keeptoo.KGradientPanel pnMainTitle;
+    private javax.swing.JTextArea taInfoFuncionario;
     private javax.swing.JTextField tfLogin;
     // End of variables declaration//GEN-END:variables
+
+	
+	
 }

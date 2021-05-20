@@ -5,8 +5,8 @@ public class VoluntarioPF extends Voluntario {
     private String sexo;
     private String turno;
 
-    public VoluntarioPF(String nome, String telefone, Endereco endereco, String cpf, String sexo, String turno) {
-        super(nome, telefone, endereco);
+    public VoluntarioPF(int idConta, String nome, String telefone, Endereco endereco, String cpf, String sexo, String turno) {
+        super(idConta, nome, telefone, endereco);
         this.cpf = cpf;
         this.sexo = sexo;
         this.turno = turno;

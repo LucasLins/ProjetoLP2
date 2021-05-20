@@ -3,24 +3,32 @@ package model;
 
 public class Funcionario {
 	
-    public String nome;
-    public String sexo;
-    public String cpf;
-    public String telefone;
-    public String endereco;
+    private int idConta;
+	private String nome;
+    private String sexo;
+    private String cpf;
+    private String telefone;
+    private Endereco endereco;
     
-    public Funcionario(String nome, String sexo, String cpf, String telefone, String endereco) {
-	this.nome = nome;
-	this.sexo = sexo;
-	this.cpf = cpf;
-	this.telefone = telefone;
-	this.endereco = endereco;
+    public Funcionario(int idConta, String nome, String sexo, String cpf, String telefone, Endereco endereco) {
+		this.idConta = idConta;
+		this.nome = nome;
+		this.sexo = sexo;
+		this.cpf = cpf;
+		this.telefone = telefone;
+		this.endereco = endereco;
     }
     
-    public Funcionario() {
-    	
-    }
+    public Funcionario() {}
 
+	public int getIdConta() {
+		return idConta;
+	}
+
+	public void setIdConta(int idConta) {
+		this.idConta = idConta;
+	}
+	
     public String getNome() {
     	return nome;
     }
@@ -30,40 +38,40 @@ public class Funcionario {
     }
 
     public String getSexo() {
-	return sexo;
+		return sexo;
     }
 
     public void setSexo(String sexo) {
-	this.sexo = sexo;
+		this.sexo = sexo;
     }
 
     public String getCpf() {
-	return cpf;
+		return cpf;
     }
 
     public void setCpf(String cpf) {
-	this.cpf = cpf;
+		this.cpf = cpf;
     }
 
     public String getTelefone() {
-	return telefone;
+		return telefone;
     }
 
     public void setTelefone(String telefone) {
-	this.telefone = telefone;
+		this.telefone = telefone;
     }
 
-    public String getEndereco() {
+    public Endereco getEndereco() {
     	return endereco;
     }
 
-    public void setEndereco(String endereco) {
-	this.endereco = endereco;
+    public void setEndereco(Endereco endereco) {
+		this.endereco = endereco;
     }
 
     public String toString() {
-	return "Funcionario: \nNome= " + nome + "\nSexo= " + sexo + "\nCPF= " + cpf + "\nTelefone= " + telefone + "\nEndereco= "
-	+ endereco;
+		return "Funcionario: \nNome= " + nome + "\nSexo= " + sexo + "\nCPF= " + cpf + "\nTelefone= " + telefone + "\nEndereco= "
+		+ endereco;
     }
     
 }

@@ -4,25 +4,30 @@ import java.util.ArrayList;
 public class Caixa {
     
     private double saldo;
-    private ArrayList<Double> extrato = new ArrayList<Double>();
+    private ArrayList<Double> extrato;
 
-	
     public Caixa(double saldo) {
-	this.saldo = saldo;
+		this.saldo = saldo;
     }
 	
-    public Caixa() {
-	
-    }
+    public Caixa() {}
 
     public double getSaldo() {
-	return saldo;
+		return saldo;
     }
 
     public void setSaldo(double saldo) {
-	this.saldo = saldo;
+		this.saldo = saldo;
     }
-	
+
+	public ArrayList<Double> getExtrato() {
+		return extrato;
+	}
+
+	public void setExtrato(ArrayList<Double> extrato) {
+		this.extrato = extrato;
+	}
+
     public double doar(double valor) {
         extrato.add(valor);
 	return saldo = saldo + valor;
@@ -30,13 +35,12 @@ public class Caixa {
 
     public double gastar(double valor) {
         extrato.add(valor);
-	return saldo = saldo - valor;
+		return saldo = saldo - valor;
     }
     
     public String toString() {
-	return "Caixa:\n Saldo= R$ " + saldo + "\nExtrato:\n [" + extrato + "]";
+		return "Caixa:\n Saldo= R$ " + saldo + "\nExtrato:\n [" + extrato + "]";
     
     }
-    
     
 }

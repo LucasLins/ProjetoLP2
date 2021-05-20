@@ -2,18 +2,28 @@
 package model;
 
 public class Voluntario {
+	private int idConta;
     private String nome;
     private String telefone;
     private Endereco endereco;
 
-    public Voluntario(String nome, String telefone, Endereco endereco) {
+    public Voluntario(int idConta, String nome, String telefone, Endereco endereco) {
+		this.idConta = idConta;
         this.nome = nome;
         this.telefone = telefone;
         this.endereco = endereco;
     }
 
     public Voluntario() {}
-    
+
+	public int getIdConta() {
+		return idConta;
+	}
+
+	public void setIdConta(int idConta) {
+		this.idConta = idConta;
+	}
+
     public String getNome() {
         return nome;
     }
@@ -22,7 +32,6 @@ public class Voluntario {
         this.nome = nome;
     }
 
-    
     public String getTelefone() {
         return telefone;
     }
