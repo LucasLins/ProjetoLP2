@@ -9,6 +9,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import model.Conta;
+import model.Endereco;
 import model.Funcionario;
 import model.Gestor;
 import model.Voluntario;
@@ -30,6 +31,7 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
 	private VoluntarioPF userVolPF;
 	private VoluntarioPJ userVolPJ;
 	private int userId;
+	private int idCount = 1;
 	private ArrayList<Conta> listaContas = new ArrayList<Conta>();
 	private ArrayList<Funcionario> listaFuncionarios = new ArrayList<Funcionario>();
 	private ArrayList<Gestor> listaGestores = new ArrayList<Gestor>();
@@ -41,28 +43,33 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
 		loginPanel.setVisible(true);
 		
 		listaContas.add(new Conta(0, "lucaslins", "88219442", "Funcionário"));
-		listaContas.add(new Conta(1, "lucaslins2", "88219442", "VoluntárioPF"));
-		listaContas.add(new Conta(1, "lucaslins3", "88219442", "VoluntárioPJ"));
 		listaFuncionarios.add(new Funcionario(0, "Lucas Lins", "Masculino", "123456789", "88219442", null));
-		listaVoluntarios.add(new VoluntarioPF(1, "Alana Morais", "88219442", null, "123456789", "Feminino", "Manhã"));
-		listaVoluntarios.add(new VoluntarioPJ(2, "Alana Morais", "88219442", null, "123456789", "5431234"));
     }
 	
 	public void resetLayers(){
-		ldFuncionario.setVisible(false);
-		ldMenus.setVisible(false);
 		loginPanel.setVisible(false);
+		pnFuncionario.setVisible(false);
+		pnFuncMain.setVisible(false);
+		pnCdVolPF.setVisible(false);
 	}
 	
 	public void enableFuncionario(){
-		ldFuncionario.setVisible(true);
-		ldMenus.setVisible(true);
 		pnFuncMain.setVisible(true); // Paginá principal Funcionário
 		pnFuncionario.setVisible(true); // Menu Funcionário
 		taInfoFuncionario.setText(userFuncionario.toString());
 	}
 	
-	
+	public void clearCdVolPF(){
+		tfVolPFNome.setText("");
+		tfVolPFBairro.setText("");
+		tfVolPFCidade.setText("");
+		tfVolPFComplemento.setText("");
+		tfVolPFNumero.setText("");
+		tfVolPFRua.setText("");
+		ftfVolPFCEP.setText("");
+		ftfVolPFCPF.setText("");
+		ftfVolPFTelefone.setText("");
+	}
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -100,10 +107,36 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         taInfoFuncionario = new javax.swing.JTextArea();
-        pnCdVol = new javax.swing.JPanel();
+        pnCdVolPF = new javax.swing.JPanel();
         pnCdVolTitle = new keeptoo.KGradientPanel();
         jLabel1 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
+        ftfVolPFTelefone = new javax.swing.JFormattedTextField();
+        jLabel3 = new javax.swing.JLabel();
+        tfVolPFNome = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        ftfVolPFCPF = new javax.swing.JFormattedTextField();
+        jLabel6 = new javax.swing.JLabel();
+        cbVolPFSexo = new javax.swing.JComboBox<>();
+        jLabel7 = new javax.swing.JLabel();
+        cbVolPFTurno = new javax.swing.JComboBox<>();
+        pnEndereco = new javax.swing.JPanel();
+        jLabel8 = new javax.swing.JLabel();
+        tfVolPFRua = new javax.swing.JTextField();
+        jLabel9 = new javax.swing.JLabel();
+        tfVolPFNumero = new javax.swing.JTextField();
+        jLabel10 = new javax.swing.JLabel();
+        tfVolPFComplemento = new javax.swing.JTextField();
+        jLabel11 = new javax.swing.JLabel();
+        tfVolPFBairro = new javax.swing.JTextField();
+        tfVolPFCidade = new javax.swing.JTextField();
+        jLabel12 = new javax.swing.JLabel();
+        jLabel13 = new javax.swing.JLabel();
+        jLabel14 = new javax.swing.JLabel();
+        cbVolPFUF = new javax.swing.JComboBox<>();
+        ftfVolPFCEP = new javax.swing.JFormattedTextField();
+        btCadastrarVolPF = new keeptoo.KButton();
 
         btLogin5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/new work.png"))); // NOI18N
         btLogin5.setText("Cadastrar Trabalho");
@@ -142,7 +175,7 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
         tfLogin.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         tfLogin.setForeground(new java.awt.Color(255, 255, 255));
         tfLogin.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 2, 0, new java.awt.Color(255, 255, 255)));
-        tfLogin.setCaretColor(new java.awt.Color(54, 33, 89));
+        tfLogin.setCaretColor(new java.awt.Color(255, 255, 255));
         tfLogin.setOpaque(false);
         tfLogin.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -156,7 +189,7 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
         pfSenha.setForeground(new java.awt.Color(255, 255, 255));
         pfSenha.setHorizontalAlignment(javax.swing.JTextField.LEFT);
         pfSenha.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 2, 0, new java.awt.Color(255, 255, 255)));
-        pfSenha.setCaretColor(new java.awt.Color(54, 33, 89));
+        pfSenha.setCaretColor(new java.awt.Color(255, 255, 255));
         pfSenha.setOpaque(false);
         pfSenha.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -463,8 +496,7 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
 
         ldFuncionario.add(pnFuncMain, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 500));
 
-        pnCdVol.setBackground(new java.awt.Color(204, 204, 204));
-        pnCdVol.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        pnCdVolPF.setBackground(new java.awt.Color(204, 204, 204));
 
         pnCdVolTitle.setkBorderRadius(0);
         pnCdVolTitle.setkEndColor(new java.awt.Color(204, 0, 204));
@@ -492,25 +524,178 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        pnCdVol.add(pnCdVolTitle, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 0, 640, 40));
-
         jPanel2.setBackground(new java.awt.Color(204, 204, 204));
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
+        jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 616, Short.MAX_VALUE)
+        try {
+            ftfVolPFTelefone.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.MaskFormatter("(##)#####-####")));
+        } catch (java.text.ParseException ex) {
+            ex.printStackTrace();
+        }
+        jPanel2.add(ftfVolPFTelefone, new org.netbeans.lib.awtextra.AbsoluteConstraints(58, 39, 100, -1));
+
+        jLabel3.setText("Nome");
+        jPanel2.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(27, 16, -1, -1));
+        jPanel2.add(tfVolPFNome, new org.netbeans.lib.awtextra.AbsoluteConstraints(58, 13, 100, -1));
+
+        jLabel4.setText("Telefone");
+        jPanel2.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(12, 42, -1, -1));
+
+        jLabel5.setText("CPF");
+        jPanel2.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(35, 68, -1, -1));
+
+        try {
+            ftfVolPFCPF.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.MaskFormatter("###.###.###-##")));
+        } catch (java.text.ParseException ex) {
+            ex.printStackTrace();
+        }
+        jPanel2.add(ftfVolPFCPF, new org.netbeans.lib.awtextra.AbsoluteConstraints(58, 65, 100, -1));
+
+        jLabel6.setText("Sexo");
+        jPanel2.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 94, -1, -1));
+
+        cbVolPFSexo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Masculino", "Feminino" }));
+        jPanel2.add(cbVolPFSexo, new org.netbeans.lib.awtextra.AbsoluteConstraints(58, 91, 100, -1));
+
+        jLabel7.setText("Turno");
+        jPanel2.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(26, 122, -1, -1));
+
+        cbVolPFTurno.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Manhã", "Tarde", "Noite" }));
+        jPanel2.add(cbVolPFTurno, new org.netbeans.lib.awtextra.AbsoluteConstraints(58, 119, 100, -1));
+
+        pnEndereco.setBackground(new java.awt.Color(204, 204, 204));
+        pnEndereco.setBorder(javax.swing.BorderFactory.createTitledBorder("Endereço"));
+
+        jLabel8.setText("Rua");
+
+        jLabel9.setText("Número");
+
+        jLabel10.setText("Complemento");
+
+        jLabel11.setText("Bairro");
+
+        jLabel12.setText("Cidade");
+
+        jLabel13.setText("UF");
+
+        jLabel14.setText("CEP");
+
+        cbVolPFUF.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        try {
+            ftfVolPFCEP.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.MaskFormatter("#####-###")));
+        } catch (java.text.ParseException ex) {
+            ex.printStackTrace();
+        }
+
+        javax.swing.GroupLayout pnEnderecoLayout = new javax.swing.GroupLayout(pnEndereco);
+        pnEndereco.setLayout(pnEnderecoLayout);
+        pnEnderecoLayout.setHorizontalGroup(
+            pnEnderecoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnEnderecoLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(pnEnderecoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(pnEnderecoLayout.createSequentialGroup()
+                        .addComponent(jLabel8)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(tfVolPFRua, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(pnEnderecoLayout.createSequentialGroup()
+                        .addComponent(jLabel9)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(tfVolPFNumero, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(pnEnderecoLayout.createSequentialGroup()
+                        .addComponent(jLabel10)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(tfVolPFComplemento, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(pnEnderecoLayout.createSequentialGroup()
+                        .addComponent(jLabel11)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(tfVolPFBairro, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(pnEnderecoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(pnEnderecoLayout.createSequentialGroup()
+                        .addComponent(jLabel14)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(ftfVolPFCEP, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(pnEnderecoLayout.createSequentialGroup()
+                        .addComponent(jLabel12)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(tfVolPFCidade, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(pnEnderecoLayout.createSequentialGroup()
+                        .addComponent(jLabel13)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(cbVolPFUF, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(88, Short.MAX_VALUE))
         );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 436, Short.MAX_VALUE)
+        pnEnderecoLayout.setVerticalGroup(
+            pnEnderecoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnEnderecoLayout.createSequentialGroup()
+                .addGroup(pnEnderecoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(jLabel8)
+                    .addComponent(tfVolPFRua, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel12)
+                    .addComponent(tfVolPFCidade, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(pnEnderecoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(jLabel9)
+                    .addComponent(tfVolPFNumero, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel13)
+                    .addComponent(cbVolPFUF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(pnEnderecoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(jLabel10)
+                    .addComponent(tfVolPFComplemento, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel14)
+                    .addComponent(ftfVolPFCEP, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(pnEnderecoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(jLabel11)
+                    .addComponent(tfVolPFBairro, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(0, 50, Short.MAX_VALUE))
         );
 
-        pnCdVol.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 50, 620, 440));
+        jPanel2.add(pnEndereco, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 10, 420, 170));
 
-        ldFuncionario.add(pnCdVol, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 500));
+        btCadastrarVolPF.setText("Cadastrar");
+        btCadastrarVolPF.setFont(new java.awt.Font("Segoe UI", 0, 12)); // NOI18N
+        btCadastrarVolPF.setkEndColor(new java.awt.Color(233, 193, 253));
+        btCadastrarVolPF.setkHoverEndColor(new java.awt.Color(236, 174, 243));
+        btCadastrarVolPF.setkHoverForeGround(new java.awt.Color(153, 0, 255));
+        btCadastrarVolPF.setkHoverStartColor(new java.awt.Color(221, 143, 253));
+        btCadastrarVolPF.setkPressedColor(new java.awt.Color(250, 209, 254));
+        btCadastrarVolPF.setkStartColor(new java.awt.Color(199, 96, 230));
+        btCadastrarVolPF.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btCadastrarVolPFActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout pnCdVolPFLayout = new javax.swing.GroupLayout(pnCdVolPF);
+        pnCdVolPF.setLayout(pnCdVolPFLayout);
+        pnCdVolPFLayout.setHorizontalGroup(
+            pnCdVolPFLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnCdVolPFLayout.createSequentialGroup()
+                .addGap(160, 160, 160)
+                .addComponent(pnCdVolTitle, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(pnCdVolPFLayout.createSequentialGroup()
+                .addGap(170, 170, 170)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 620, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(pnCdVolPFLayout.createSequentialGroup()
+                .addGap(692, 692, 692)
+                .addComponent(btCadastrarVolPF, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+        pnCdVolPFLayout.setVerticalGroup(
+            pnCdVolPFLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnCdVolPFLayout.createSequentialGroup()
+                .addComponent(pnCdVolTitle, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(10, 10, 10)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btCadastrarVolPF, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+
+        ldFuncionario.add(pnCdVolPF, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 500));
 
         getContentPane().add(ldFuncionario, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 500));
 
@@ -580,7 +765,13 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
     }//GEN-LAST:event_btEntregasActionPerformed
 
     private void btCadastroVoluntarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btCadastroVoluntarioActionPerformed
-        // TODO add your handling code here:
+       Object[] tipoVol = {"Pessoa Física", "Pessoa Jurídica"};
+	   Object choice = JOptionPane.showOptionDialog(rootPane, "Qual tipo de voluntário deseja cadastrar?", "Cadastrar Voluntário", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, tipoVol, tipoVol);
+	   if(choice.toString().equals("0")){
+		   resetLayers();
+		   pnFuncionario.setVisible(true);
+		   pnCdVolPF.setVisible(true);
+	   }
     }//GEN-LAST:event_btCadastroVoluntarioActionPerformed
 
     private void btFuncInicioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btFuncInicioActionPerformed
@@ -622,7 +813,7 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
 
     private void btFuncLogout1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btFuncLogout1ActionPerformed
         Object[] botoesDesconectar = {"Desconectar", "Voltar"};
-		Object choice = JOptionPane.showOptionDialog(rootPane, "Tem certeza que deseja sair?", "Desconectar", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, botoesDesconectar, botoesDesconectar[0]);
+		Object choice = JOptionPane.showOptionDialog(rootPane, "Tem certeza que deseja sair?", "Desconectar", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, botoesDesconectar, botoesDesconectar);
 		if(choice.toString().equals("0")){
 			connected = false;
 			userFuncionario = null;
@@ -630,6 +821,17 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
 			loginPanel.setVisible(true);
 		}
     }//GEN-LAST:event_btFuncLogout1ActionPerformed
+
+    private void btCadastrarVolPFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btCadastrarVolPFActionPerformed
+        listaVoluntarios.add(new VoluntarioPF(idCount, tfVolPFNome.getText(), ftfVolPFTelefone.getText(), 
+				new Endereco(tfVolPFRua.getText(), tfVolPFNumero.getText(), tfVolPFComplemento.getText(), tfVolPFBairro.getText(), tfVolPFCidade.getText(), cbVolPFUF.getSelectedItem().toString(), ftfVolPFCEP.getText()),
+				ftfVolPFCPF.getText(), cbVolPFSexo.getSelectedItem().toString(), cbVolPFTurno.getSelectedItem().toString()));
+		JOptionPane.showMessageDialog(rootPane, "Voluntário cadastrado com sucesso!");
+		idCount++;
+		clearCdVolPF();
+		//resetLayers();
+		//enableFuncionario();
+    }//GEN-LAST:event_btCadastrarVolPFActionPerformed
 
     /**
      * @param args the command line arguments
@@ -669,6 +871,7 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private keeptoo.KButton btAceitarDoacao;
+    private keeptoo.KButton btCadastrarVolPF;
     private keeptoo.KButton btCadastroEvento;
     private keeptoo.KButton btCadastroTrabalho;
     private keeptoo.KButton btCadastroVoluntario;
@@ -680,9 +883,27 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
     private keeptoo.KButton btLogin5;
     private keeptoo.KButton btRelatorios;
     private keeptoo.KButton btRemoverVoluntario;
+    private javax.swing.JComboBox<String> cbVolPFSexo;
+    private javax.swing.JComboBox<String> cbVolPFTurno;
+    private javax.swing.JComboBox<String> cbVolPFUF;
+    private javax.swing.JFormattedTextField ftfVolPFCEP;
+    private javax.swing.JFormattedTextField ftfVolPFCPF;
+    private javax.swing.JFormattedTextField ftfVolPFTelefone;
     private javax.swing.JLabel iconMV;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
@@ -693,13 +914,20 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
     private javax.swing.JLayeredPane ldMenus;
     private keeptoo.KGradientPanel loginPanel;
     private javax.swing.JPasswordField pfSenha;
-    private javax.swing.JPanel pnCdVol;
+    private javax.swing.JPanel pnCdVolPF;
     private keeptoo.KGradientPanel pnCdVolTitle;
+    private javax.swing.JPanel pnEndereco;
     private javax.swing.JPanel pnFuncMain;
     private keeptoo.KGradientPanel pnFuncionario;
     private keeptoo.KGradientPanel pnMainTitle;
     private javax.swing.JTextArea taInfoFuncionario;
     private javax.swing.JTextField tfLogin;
+    private javax.swing.JTextField tfVolPFBairro;
+    private javax.swing.JTextField tfVolPFCidade;
+    private javax.swing.JTextField tfVolPFComplemento;
+    private javax.swing.JTextField tfVolPFNome;
+    private javax.swing.JTextField tfVolPFNumero;
+    private javax.swing.JTextField tfVolPFRua;
     // End of variables declaration//GEN-END:variables
 
 	
