@@ -2,14 +2,14 @@ package model;
 
 public class Endereco {
     private String rua;
-    private int numero;
+    private String numero;
     private String complemento;
     private String bairro;
     private String cidade;
     private String uf;
     private String cep;
 
-    public Endereco(String rua, int numero, String complemento, String bairro, String cidade, String uf, String cep) {
+    public Endereco(String rua, String numero, String complemento, String bairro, String cidade, String uf, String cep) {
         this.rua = rua;
         this.numero = numero;
         this.complemento = complemento;
@@ -29,11 +29,11 @@ public class Endereco {
         this.rua = rua;
     }
 
-    public int getNumero() {
+    public String getNumero() {
         return numero;
     }
 
-    public void setNumero(int numero) {
+    public void setNumero(String numero) {
         this.numero = numero;
     }
 
@@ -77,10 +77,11 @@ public class Endereco {
         this.cep = cep;
     }
 
-    @Override
-    public String toString() {
-        return "Endereco [rua=" + rua + ", numero=" + numero + ", complemento=" + complemento + ", bairro=" + bairro
-                    + ", cidade=" + cidade + ", uf=" + uf + ", cep=" + cep + "]";
-    }
+	@Override
+	public String toString() {
+		return "Rua: " + rua + ", Número: " + numero + ", Complemento: " + complemento + ", Bairro: " + bairro + ", Cidade: " + cidade + ", UF: " + uf + ", CEP: " + cep;
+	}
+
+    
 
 }

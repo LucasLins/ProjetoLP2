@@ -2,23 +2,44 @@ package model;
 import java.util.ArrayList;
 
 public class Evento {
+	private String nome;
     private String data;
     private String duracao;
-    private ArrayList<Voluntario> equipe;
+    private ArrayList<Trabalho> trabalhos;
     private String objetivo;
-    private double orcamento;
+    private ArrayList<Gasto> gastos;
     private Funcionario responsavel;
 
-	public Evento(String data, String duracao, ArrayList<Voluntario> equipe, String objetivo, double orcamento, Funcionario responsavel) {
+	public Evento(String nome, String data, String duracao, ArrayList<Trabalho> trabalhos, String objetivo, ArrayList<Gasto> gastos, Funcionario responsavel) {
+		this.nome = nome;
 		this.data = data;
 		this.duracao = duracao;
-		this.equipe = equipe;
+		this.trabalhos = trabalhos;
 		this.objetivo = objetivo;
-		this.orcamento = orcamento;
+		this.gastos = gastos;
 		this.responsavel = responsavel;
 	}
 
+	public Evento(String nome, String data, String duracao, String objetivo, ArrayList<Gasto> gastos, Funcionario responsavel) { // Construtor sem atribuir trabalhos
+		this.nome = nome;
+		this.data = data;
+		this.duracao = duracao;
+		this.objetivo = objetivo;
+		this.gastos = gastos;
+		this.responsavel = responsavel;
+	}
+	
+	
+
 	public Evento() {}
+
+	public String getNome() {
+		return nome;
+	}
+
+	public void setNome(String nome) {
+		this.nome = nome;
+	}
 
 	public String getData() {
 		return data;
@@ -36,12 +57,12 @@ public class Evento {
 		this.duracao = duracao;
 	}
 
-	public ArrayList<Voluntario> getEquipe() {
-		return equipe;
+	public ArrayList<Trabalho> getTrabalhos() {
+		return trabalhos;
 	}
 
-	public void setEquipe(ArrayList<Voluntario> equipe) {
-		this.equipe = equipe;
+	public void setEquipe(ArrayList<Trabalho> trabalhos) {
+		this.trabalhos = trabalhos;
 	}
 
 	public String getObjetivo() {
@@ -52,12 +73,12 @@ public class Evento {
 		this.objetivo = objetivo;
 	}
 
-	public double getOrcamento() {
-		return orcamento;
+	public ArrayList<Gasto> getGastos() {
+		return gastos;
 	}
 
-	public void setOrcamento(double orcamento) {
-		this.orcamento = orcamento;
+	public void setGastos(ArrayList<Gasto> gastos) {
+		this.gastos = gastos;
 	}
 
 	public Funcionario getResponsavel() {
@@ -68,8 +89,9 @@ public class Evento {
 		this.responsavel = responsavel;
 	}
 
+	@Override
 	public String toString() {
-		return "Evento{" + "data=" + data + ", duracao=" + duracao + ", equipe=" + equipe + ", objetivo=" + objetivo + ", orcamento=" + orcamento + ", responsavel=" + responsavel + '}';
+		return "Evento{" + "nome=" + nome + ", data=" + data + ", duracao=" + duracao + ", trabalhos=" + trabalhos + ", objetivo=" + objetivo + ", gastos=" + gastos + ", responsavel=" + responsavel + '}';
 	}
 	
 }

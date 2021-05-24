@@ -7,9 +7,13 @@ package view;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 import model.Conta;
+import model.Endereco;
+import model.Evento;
 import model.Funcionario;
+import model.Gasto;
 import model.Gestor;
 import model.Voluntario;
 import model.VoluntarioPF;
@@ -30,10 +34,13 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
 	private VoluntarioPF userVolPF;
 	private VoluntarioPJ userVolPJ;
 	private int userId;
+	private int idCount = 1;
 	private ArrayList<Conta> listaContas = new ArrayList<Conta>();
 	private ArrayList<Funcionario> listaFuncionarios = new ArrayList<Funcionario>();
 	private ArrayList<Gestor> listaGestores = new ArrayList<Gestor>();
 	private ArrayList<Voluntario> listaVoluntarios = new ArrayList<Voluntario>();
+	private ArrayList<Gasto> listaGastosTemp = new ArrayList<Gasto>();
+	private ArrayList<Evento> listaEventos = new ArrayList<Evento>();
 	
     public MoraisVoluntariado() {
         initComponents();
@@ -41,28 +48,77 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
 		loginPanel.setVisible(true);
 		
 		listaContas.add(new Conta(0, "lucaslins", "88219442", "Funcionário"));
-		listaContas.add(new Conta(1, "lucaslins2", "88219442", "VoluntárioPF"));
-		listaContas.add(new Conta(1, "lucaslins3", "88219442", "VoluntárioPJ"));
 		listaFuncionarios.add(new Funcionario(0, "Lucas Lins", "Masculino", "123456789", "88219442", null));
-		listaVoluntarios.add(new VoluntarioPF(1, "Alana Morais", "88219442", null, "123456789", "Feminino", "Manhã"));
-		listaVoluntarios.add(new VoluntarioPJ(2, "Alana Morais", "88219442", null, "123456789", "5431234"));
+		listaFuncionarios.add(new Funcionario(1, "Alana Marques", "Feminino", "123456789", "88219442", null));
     }
 	
 	public void resetLayers(){
-		ldFuncionario.setVisible(false);
-		ldMenus.setVisible(false);
 		loginPanel.setVisible(false);
+		pnFuncionario.setVisible(false);
+		pnFuncMain.setVisible(false);
+		pnCdVolPF.setVisible(false);
+		pnCdVolPJ.setVisible(false);
+		pnCdEvento.setVisible(false);
 	}
 	
 	public void enableFuncionario(){
-		ldFuncionario.setVisible(true);
-		ldMenus.setVisible(true);
 		pnFuncMain.setVisible(true); // Paginá principal Funcionário
 		pnFuncionario.setVisible(true); // Menu Funcionário
 		taInfoFuncionario.setText(userFuncionario.toString());
 	}
 	
+	public void clearCdVolPF(){
+		tfVolPFNome.setText("");
+		tfVolPFBairro.setText("");
+		tfVolPFCidade.setText("");
+		tfVolPFComplemento.setText("");
+		tfVolPFNumero.setText("");
+		tfVolPFRua.setText("");
+		ftfVolPFCEP.setText("");
+		ftfVolPFCPF.setText("");
+		ftfVolPFTelefone.setText("");
+	}
 	
+	public void clearCdVolPJ(){
+		tfVolPJNome.setText("");
+		tfVolPJBairro.setText("");
+		tfVolPJCidade.setText("");
+		tfVolPJComplemento.setText("");
+		tfVolPJNumero.setText("");
+		tfVolPJRua.setText("");
+		ftfVolPJCEP.setText("");
+		ftfVolPJCNPJ.setText("");
+		ftfVolPJIE.setText("");
+		ftfVolPJTelefone.setText("");
+	}
+	
+	public void clearCdEvento(){
+		tfNomeEvento.setText("");
+		tfNomeGasto.setText("");
+		tfValorGasto.setText("");
+		ftfDataEvento.setText("");
+		ftfDuracaoFim.setText("");
+		ftfDuracaoInicio.setText("");
+		tpObjetivoEvento.setText("");
+		listaGastosTemp.clear();
+		jLGastos.setModel(converterGastosLista());
+	}
+	
+	public DefaultListModel<String> converterFuncionariosLista(){
+		DefaultListModel<String> listModel = new DefaultListModel<String>();
+		for(int i = 0; i<listaFuncionarios.size(); i++){
+			listModel.addElement(listaFuncionarios.get(i).getNome());
+		}
+		return listModel;
+	}
+	
+	public DefaultListModel<String> converterGastosLista(){
+		DefaultListModel<String> listModel = new DefaultListModel<String>();
+		for(int i = 0; i<listaGastosTemp.size(); i++){
+			listModel.addElement(listaGastosTemp.get(i).toString());
+		}
+		return listModel;
+	}
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -100,10 +156,110 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         taInfoFuncionario = new javax.swing.JTextArea();
-        pnCdVol = new javax.swing.JPanel();
+        pnCdVolPF = new javax.swing.JPanel();
         pnCdVolTitle = new keeptoo.KGradientPanel();
         jLabel1 = new javax.swing.JLabel();
-        jPanel2 = new javax.swing.JPanel();
+        pnDados = new javax.swing.JPanel();
+        ftfVolPFTelefone = new javax.swing.JFormattedTextField();
+        jLabel3 = new javax.swing.JLabel();
+        tfVolPFNome = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        ftfVolPFCPF = new javax.swing.JFormattedTextField();
+        jLabel6 = new javax.swing.JLabel();
+        cbVolPFSexo = new javax.swing.JComboBox<>();
+        jLabel7 = new javax.swing.JLabel();
+        cbVolPFTurno = new javax.swing.JComboBox<>();
+        btCadastrarVolPF = new keeptoo.KButton();
+        pnEndereco = new javax.swing.JPanel();
+        jLabel8 = new javax.swing.JLabel();
+        tfVolPFRua = new javax.swing.JTextField();
+        jLabel9 = new javax.swing.JLabel();
+        tfVolPFNumero = new javax.swing.JTextField();
+        jLabel10 = new javax.swing.JLabel();
+        tfVolPFComplemento = new javax.swing.JTextField();
+        jLabel11 = new javax.swing.JLabel();
+        tfVolPFBairro = new javax.swing.JTextField();
+        tfVolPFCidade = new javax.swing.JTextField();
+        jLabel12 = new javax.swing.JLabel();
+        jLabel13 = new javax.swing.JLabel();
+        jLabel14 = new javax.swing.JLabel();
+        cbVolPFUF = new javax.swing.JComboBox<>();
+        ftfVolPFCEP = new javax.swing.JFormattedTextField();
+        jLabel15 = new javax.swing.JLabel();
+        jLabel16 = new javax.swing.JLabel();
+        jPanel3 = new javax.swing.JPanel();
+        tfVolPFUsuario = new javax.swing.JTextField();
+        tfVolPFSenha = new javax.swing.JTextField();
+        jLabel17 = new javax.swing.JLabel();
+        jLabel18 = new javax.swing.JLabel();
+        jLabel20 = new javax.swing.JLabel();
+        pnCdVolPJ = new javax.swing.JPanel();
+        pnCdVolTitle1 = new keeptoo.KGradientPanel();
+        jLabel19 = new javax.swing.JLabel();
+        pnDados1 = new javax.swing.JPanel();
+        ftfVolPJTelefone = new javax.swing.JFormattedTextField();
+        jLabel21 = new javax.swing.JLabel();
+        tfVolPJNome = new javax.swing.JTextField();
+        jLabel22 = new javax.swing.JLabel();
+        jLabel23 = new javax.swing.JLabel();
+        ftfVolPJCNPJ = new javax.swing.JFormattedTextField();
+        jLabel24 = new javax.swing.JLabel();
+        ftfVolPJIE = new javax.swing.JFormattedTextField();
+        btCadastrarVolPJ = new keeptoo.KButton();
+        pnEndereco1 = new javax.swing.JPanel();
+        jLabel26 = new javax.swing.JLabel();
+        tfVolPJRua = new javax.swing.JTextField();
+        jLabel27 = new javax.swing.JLabel();
+        tfVolPJNumero = new javax.swing.JTextField();
+        jLabel28 = new javax.swing.JLabel();
+        tfVolPJComplemento = new javax.swing.JTextField();
+        jLabel29 = new javax.swing.JLabel();
+        tfVolPJBairro = new javax.swing.JTextField();
+        tfVolPJCidade = new javax.swing.JTextField();
+        jLabel30 = new javax.swing.JLabel();
+        jLabel31 = new javax.swing.JLabel();
+        jLabel32 = new javax.swing.JLabel();
+        cbVolPJUF = new javax.swing.JComboBox<>();
+        ftfVolPJCEP = new javax.swing.JFormattedTextField();
+        jLabel33 = new javax.swing.JLabel();
+        jLabel34 = new javax.swing.JLabel();
+        jPanel4 = new javax.swing.JPanel();
+        tfVolPJUsuario = new javax.swing.JTextField();
+        tfVolPJSenha = new javax.swing.JTextField();
+        jLabel35 = new javax.swing.JLabel();
+        jLabel36 = new javax.swing.JLabel();
+        jLabel37 = new javax.swing.JLabel();
+        pnCdEvento = new javax.swing.JPanel();
+        pnMainTitle1 = new keeptoo.KGradientPanel();
+        jLabel25 = new javax.swing.JLabel();
+        jPanel5 = new javax.swing.JPanel();
+        tfNomeEvento = new javax.swing.JTextField();
+        jLabel38 = new javax.swing.JLabel();
+        jLabel39 = new javax.swing.JLabel();
+        ftfDataEvento = new javax.swing.JFormattedTextField();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        tpObjetivoEvento = new javax.swing.JTextPane();
+        jLabel40 = new javax.swing.JLabel();
+        ftfDuracaoInicio = new javax.swing.JFormattedTextField();
+        ftfDuracaoFim = new javax.swing.JFormattedTextField();
+        jLabel41 = new javax.swing.JLabel();
+        jLabel44 = new javax.swing.JLabel();
+        jLabel43 = new javax.swing.JLabel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jLGastos = new javax.swing.JList<>();
+        jLabel42 = new javax.swing.JLabel();
+        jLabel45 = new javax.swing.JLabel();
+        jScrollPane5 = new javax.swing.JScrollPane();
+        jLFuncionarios = new javax.swing.JList<>();
+        btInfoFuncionario = new keeptoo.KButton();
+        btAddGasto = new keeptoo.KButton();
+        tfNomeGasto = new javax.swing.JTextField();
+        jLabel46 = new javax.swing.JLabel();
+        jLabel47 = new javax.swing.JLabel();
+        btRemoveGasto = new keeptoo.KButton();
+        tfValorGasto = new javax.swing.JTextField();
+        btCadastrarEvento = new keeptoo.KButton();
 
         btLogin5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/new work.png"))); // NOI18N
         btLogin5.setText("Cadastrar Trabalho");
@@ -142,7 +298,7 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
         tfLogin.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         tfLogin.setForeground(new java.awt.Color(255, 255, 255));
         tfLogin.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 2, 0, new java.awt.Color(255, 255, 255)));
-        tfLogin.setCaretColor(new java.awt.Color(54, 33, 89));
+        tfLogin.setCaretColor(new java.awt.Color(255, 255, 255));
         tfLogin.setOpaque(false);
         tfLogin.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -156,7 +312,7 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
         pfSenha.setForeground(new java.awt.Color(255, 255, 255));
         pfSenha.setHorizontalAlignment(javax.swing.JTextField.LEFT);
         pfSenha.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 2, 0, new java.awt.Color(255, 255, 255)));
-        pfSenha.setCaretColor(new java.awt.Color(54, 33, 89));
+        pfSenha.setCaretColor(new java.awt.Color(255, 255, 255));
         pfSenha.setOpaque(false);
         pfSenha.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -183,11 +339,6 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
         btLogin.setkHoverStartColor(new java.awt.Color(221, 143, 253));
         btLogin.setkPressedColor(new java.awt.Color(250, 209, 254));
         btLogin.setkStartColor(new java.awt.Color(199, 96, 230));
-        btLogin.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btLoginActionPerformed(evt);
-            }
-        });
         loginPanel.add(btLogin, new org.netbeans.lib.awtextra.AbsoluteConstraints(344, 364, 112, 32));
 
         iconMV.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/logotext.png"))); // NOI18N
@@ -463,8 +614,8 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
 
         ldFuncionario.add(pnFuncMain, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 500));
 
-        pnCdVol.setBackground(new java.awt.Color(204, 204, 204));
-        pnCdVol.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        pnCdVolPF.setBackground(new java.awt.Color(204, 204, 204));
+        pnCdVolPF.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         pnCdVolTitle.setkBorderRadius(0);
         pnCdVolTitle.setkEndColor(new java.awt.Color(204, 0, 204));
@@ -492,25 +643,750 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        pnCdVol.add(pnCdVolTitle, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 0, 640, 40));
+        pnCdVolPF.add(pnCdVolTitle, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 0, -1, -1));
 
-        jPanel2.setBackground(new java.awt.Color(204, 204, 204));
-        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
+        pnDados.setBackground(new java.awt.Color(204, 204, 204));
+        pnDados.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED, null, new java.awt.Color(255, 255, 255), null, new java.awt.Color(102, 0, 102)));
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 616, Short.MAX_VALUE)
+        try {
+            ftfVolPFTelefone.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.MaskFormatter("(##)#####-####")));
+        } catch (java.text.ParseException ex) {
+            ex.printStackTrace();
+        }
+
+        jLabel3.setText("Nome");
+
+        jLabel4.setText("Telefone");
+
+        jLabel5.setText("CPF");
+
+        try {
+            ftfVolPFCPF.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.MaskFormatter("###.###.###-##")));
+        } catch (java.text.ParseException ex) {
+            ex.printStackTrace();
+        }
+
+        jLabel6.setText("Sexo");
+
+        cbVolPFSexo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Masculino", "Feminino" }));
+
+        jLabel7.setText("Turno");
+
+        cbVolPFTurno.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Manhã", "Tarde", "Noite" }));
+
+        javax.swing.GroupLayout pnDadosLayout = new javax.swing.GroupLayout(pnDados);
+        pnDados.setLayout(pnDadosLayout);
+        pnDadosLayout.setHorizontalGroup(
+            pnDadosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnDadosLayout.createSequentialGroup()
+                .addGap(21, 21, 21)
+                .addComponent(jLabel3)
+                .addGap(4, 4, 4)
+                .addComponent(tfVolPFNome, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(pnDadosLayout.createSequentialGroup()
+                .addGap(6, 6, 6)
+                .addComponent(jLabel4)
+                .addGap(4, 4, 4)
+                .addComponent(ftfVolPFTelefone, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(pnDadosLayout.createSequentialGroup()
+                .addGap(29, 29, 29)
+                .addComponent(jLabel5)
+                .addGap(4, 4, 4)
+                .addComponent(ftfVolPFCPF, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(pnDadosLayout.createSequentialGroup()
+                .addGap(24, 24, 24)
+                .addComponent(jLabel6)
+                .addGap(4, 4, 4)
+                .addComponent(cbVolPFSexo, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(pnDadosLayout.createSequentialGroup()
+                .addGap(20, 20, 20)
+                .addComponent(jLabel7)
+                .addGap(4, 4, 4)
+                .addComponent(cbVolPFTurno, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 436, Short.MAX_VALUE)
+        pnDadosLayout.setVerticalGroup(
+            pnDadosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnDadosLayout.createSequentialGroup()
+                .addGroup(pnDadosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(pnDadosLayout.createSequentialGroup()
+                        .addGap(3, 3, 3)
+                        .addComponent(jLabel3))
+                    .addComponent(tfVolPFNome, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(6, 6, 6)
+                .addGroup(pnDadosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(pnDadosLayout.createSequentialGroup()
+                        .addGap(3, 3, 3)
+                        .addComponent(jLabel4))
+                    .addComponent(ftfVolPFTelefone, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(6, 6, 6)
+                .addGroup(pnDadosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(pnDadosLayout.createSequentialGroup()
+                        .addGap(3, 3, 3)
+                        .addComponent(jLabel5))
+                    .addComponent(ftfVolPFCPF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(6, 6, 6)
+                .addGroup(pnDadosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(pnDadosLayout.createSequentialGroup()
+                        .addGap(3, 3, 3)
+                        .addComponent(jLabel6))
+                    .addComponent(cbVolPFSexo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(8, 8, 8)
+                .addGroup(pnDadosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(pnDadosLayout.createSequentialGroup()
+                        .addGap(3, 3, 3)
+                        .addComponent(jLabel7))
+                    .addComponent(cbVolPFTurno, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(118, Short.MAX_VALUE))
         );
 
-        pnCdVol.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 50, 620, 440));
+        pnCdVolPF.add(pnDados, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 60, 168, 250));
 
-        ldFuncionario.add(pnCdVol, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 500));
+        btCadastrarVolPF.setText("Cadastrar");
+        btCadastrarVolPF.setFont(new java.awt.Font("Segoe UI", 0, 12)); // NOI18N
+        btCadastrarVolPF.setkEndColor(new java.awt.Color(233, 193, 253));
+        btCadastrarVolPF.setkHoverEndColor(new java.awt.Color(236, 174, 243));
+        btCadastrarVolPF.setkHoverForeGround(new java.awt.Color(153, 0, 255));
+        btCadastrarVolPF.setkHoverStartColor(new java.awt.Color(221, 143, 253));
+        btCadastrarVolPF.setkPressedColor(new java.awt.Color(250, 209, 254));
+        btCadastrarVolPF.setkStartColor(new java.awt.Color(199, 96, 230));
+        btCadastrarVolPF.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btCadastrarVolPFActionPerformed(evt);
+            }
+        });
+        pnCdVolPF.add(btCadastrarVolPF, new org.netbeans.lib.awtextra.AbsoluteConstraints(650, 320, 110, 30));
+
+        pnEndereco.setBackground(new java.awt.Color(204, 204, 204));
+        pnEndereco.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED, null, null, null, new java.awt.Color(102, 0, 102)));
+
+        jLabel8.setText("Rua");
+
+        jLabel9.setText("Número");
+
+        jLabel10.setText("Complemento");
+
+        jLabel11.setText("Bairro");
+
+        jLabel12.setText("Cidade");
+
+        jLabel13.setText("UF");
+
+        jLabel14.setText("CEP");
+
+        cbVolPFUF.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO" }));
+
+        try {
+            ftfVolPFCEP.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.MaskFormatter("#####-###")));
+        } catch (java.text.ParseException ex) {
+            ex.printStackTrace();
+        }
+
+        javax.swing.GroupLayout pnEnderecoLayout = new javax.swing.GroupLayout(pnEndereco);
+        pnEndereco.setLayout(pnEnderecoLayout);
+        pnEnderecoLayout.setHorizontalGroup(
+            pnEnderecoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnEnderecoLayout.createSequentialGroup()
+                .addGroup(pnEnderecoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(pnEnderecoLayout.createSequentialGroup()
+                        .addComponent(jLabel11)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(tfVolPFBairro, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(pnEnderecoLayout.createSequentialGroup()
+                        .addComponent(jLabel8)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(tfVolPFRua, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(pnEnderecoLayout.createSequentialGroup()
+                        .addComponent(jLabel12)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(tfVolPFCidade, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(pnEnderecoLayout.createSequentialGroup()
+                        .addComponent(jLabel10)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(tfVolPFComplemento, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(pnEnderecoLayout.createSequentialGroup()
+                        .addGroup(pnEnderecoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel14)
+                            .addComponent(jLabel9)
+                            .addComponent(jLabel13))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(pnEnderecoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(ftfVolPFCEP, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(pnEnderecoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(tfVolPFNumero, javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(cbVolPFUF, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
+                .addGap(0, 25, Short.MAX_VALUE))
+        );
+        pnEnderecoLayout.setVerticalGroup(
+            pnEnderecoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnEnderecoLayout.createSequentialGroup()
+                .addGroup(pnEnderecoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(jLabel8)
+                    .addComponent(tfVolPFRua, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(pnEnderecoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(jLabel11)
+                    .addComponent(tfVolPFBairro, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(pnEnderecoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(jLabel10)
+                    .addComponent(tfVolPFComplemento, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(pnEnderecoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(tfVolPFCidade, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel12))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(pnEnderecoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(ftfVolPFCEP, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel14))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(pnEnderecoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(tfVolPFNumero, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel9))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(pnEnderecoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(cbVolPFUF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel13))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        pnCdVolPF.add(pnEndereco, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 60, 200, 250));
+
+        jLabel15.setText("Endereço");
+        pnCdVolPF.add(jLabel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 46, -1, -1));
+
+        jLabel16.setText("Dados");
+        pnCdVolPF.add(jLabel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 44, -1, 20));
+
+        jPanel3.setBackground(new java.awt.Color(204, 204, 204));
+        jPanel3.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED, null, null, null, new java.awt.Color(102, 0, 102)));
+
+        jLabel17.setText("Usuário");
+
+        jLabel18.setText("Senha");
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap(14, Short.MAX_VALUE)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel17, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel18, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(tfVolPFUsuario)
+                    .addComponent(tfVolPFSenha, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE))
+                .addGap(30, 30, 30))
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel17)
+                    .addComponent(tfVolPFUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel18)
+                    .addComponent(tfVolPFSenha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(187, Short.MAX_VALUE))
+        );
+
+        pnCdVolPF.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 60, 190, 250));
+
+        jLabel20.setText("Conta");
+        pnCdVolPF.add(jLabel20, new org.netbeans.lib.awtextra.AbsoluteConstraints(650, 44, -1, 20));
+
+        ldFuncionario.add(pnCdVolPF, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 500));
+
+        pnCdVolPJ.setBackground(new java.awt.Color(204, 204, 204));
+        pnCdVolPJ.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        pnCdVolTitle1.setkBorderRadius(0);
+        pnCdVolTitle1.setkEndColor(new java.awt.Color(204, 0, 204));
+        pnCdVolTitle1.setkStartColor(new java.awt.Color(51, 0, 102));
+        pnCdVolTitle1.setPreferredSize(new java.awt.Dimension(640, 40));
+
+        jLabel19.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel19.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel19.setText("Cadastrar Voluntário");
+
+        javax.swing.GroupLayout pnCdVolTitle1Layout = new javax.swing.GroupLayout(pnCdVolTitle1);
+        pnCdVolTitle1.setLayout(pnCdVolTitle1Layout);
+        pnCdVolTitle1Layout.setHorizontalGroup(
+            pnCdVolTitle1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnCdVolTitle1Layout.createSequentialGroup()
+                .addGap(232, 232, 232)
+                .addComponent(jLabel19)
+                .addContainerGap(232, Short.MAX_VALUE))
+        );
+        pnCdVolTitle1Layout.setVerticalGroup(
+            pnCdVolTitle1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnCdVolTitle1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel19)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        pnCdVolPJ.add(pnCdVolTitle1, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 0, -1, -1));
+
+        pnDados1.setBackground(new java.awt.Color(204, 204, 204));
+        pnDados1.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED, null, new java.awt.Color(255, 255, 255), null, new java.awt.Color(102, 0, 102)));
+
+        try {
+            ftfVolPJTelefone.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.MaskFormatter("(##)#####-####")));
+        } catch (java.text.ParseException ex) {
+            ex.printStackTrace();
+        }
+
+        jLabel21.setText("Nome Fantasia");
+
+        jLabel22.setText("Telefone");
+
+        jLabel23.setText("CNPJ");
+
+        try {
+            ftfVolPJCNPJ.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.MaskFormatter("##.###.###/####-##")));
+        } catch (java.text.ParseException ex) {
+            ex.printStackTrace();
+        }
+
+        jLabel24.setText("Inscrição Estadual");
+
+        try {
+            ftfVolPJIE.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.MaskFormatter("##.###.####-#")));
+        } catch (java.text.ParseException ex) {
+            ex.printStackTrace();
+        }
+
+        javax.swing.GroupLayout pnDados1Layout = new javax.swing.GroupLayout(pnDados1);
+        pnDados1.setLayout(pnDados1Layout);
+        pnDados1Layout.setHorizontalGroup(
+            pnDados1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnDados1Layout.createSequentialGroup()
+                .addGroup(pnDados1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnDados1Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jLabel24)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(ftfVolPJIE, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnDados1Layout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(pnDados1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnDados1Layout.createSequentialGroup()
+                                .addComponent(jLabel23)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(ftfVolPJCNPJ, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnDados1Layout.createSequentialGroup()
+                                .addComponent(jLabel22)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(ftfVolPJTelefone, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnDados1Layout.createSequentialGroup()
+                                .addComponent(jLabel21)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(tfVolPJNome, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                .addContainerGap())
+        );
+        pnDados1Layout.setVerticalGroup(
+            pnDados1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnDados1Layout.createSequentialGroup()
+                .addGap(3, 3, 3)
+                .addGroup(pnDados1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel21)
+                    .addComponent(tfVolPJNome, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(6, 6, 6)
+                .addGroup(pnDados1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(ftfVolPJTelefone, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel22))
+                .addGap(6, 6, 6)
+                .addGroup(pnDados1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel23)
+                    .addComponent(ftfVolPJCNPJ, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(6, 6, 6)
+                .addGroup(pnDados1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(ftfVolPJIE, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel24))
+                .addContainerGap(143, Short.MAX_VALUE))
+        );
+
+        pnCdVolPJ.add(pnDados1, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 60, 220, 250));
+
+        btCadastrarVolPJ.setText("Cadastrar");
+        btCadastrarVolPJ.setFont(new java.awt.Font("Segoe UI", 0, 12)); // NOI18N
+        btCadastrarVolPJ.setkEndColor(new java.awt.Color(233, 193, 253));
+        btCadastrarVolPJ.setkHoverEndColor(new java.awt.Color(236, 174, 243));
+        btCadastrarVolPJ.setkHoverForeGround(new java.awt.Color(153, 0, 255));
+        btCadastrarVolPJ.setkHoverStartColor(new java.awt.Color(221, 143, 253));
+        btCadastrarVolPJ.setkPressedColor(new java.awt.Color(250, 209, 254));
+        btCadastrarVolPJ.setkStartColor(new java.awt.Color(199, 96, 230));
+        btCadastrarVolPJ.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btCadastrarVolPJActionPerformed(evt);
+            }
+        });
+        pnCdVolPJ.add(btCadastrarVolPJ, new org.netbeans.lib.awtextra.AbsoluteConstraints(650, 320, 110, 30));
+
+        pnEndereco1.setBackground(new java.awt.Color(204, 204, 204));
+        pnEndereco1.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED, null, null, null, new java.awt.Color(102, 0, 102)));
+
+        jLabel26.setText("Rua");
+
+        jLabel27.setText("Número");
+
+        jLabel28.setText("Complemento");
+
+        jLabel29.setText("Bairro");
+
+        jLabel30.setText("Cidade");
+
+        jLabel31.setText("UF");
+
+        jLabel32.setText("CEP");
+
+        cbVolPJUF.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO" }));
+
+        try {
+            ftfVolPJCEP.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.MaskFormatter("#####-###")));
+        } catch (java.text.ParseException ex) {
+            ex.printStackTrace();
+        }
+
+        javax.swing.GroupLayout pnEndereco1Layout = new javax.swing.GroupLayout(pnEndereco1);
+        pnEndereco1.setLayout(pnEndereco1Layout);
+        pnEndereco1Layout.setHorizontalGroup(
+            pnEndereco1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnEndereco1Layout.createSequentialGroup()
+                .addGroup(pnEndereco1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(pnEndereco1Layout.createSequentialGroup()
+                        .addComponent(jLabel29)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(tfVolPJBairro, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(pnEndereco1Layout.createSequentialGroup()
+                        .addComponent(jLabel26)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(tfVolPJRua, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(pnEndereco1Layout.createSequentialGroup()
+                        .addComponent(jLabel30)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(tfVolPJCidade, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(pnEndereco1Layout.createSequentialGroup()
+                        .addComponent(jLabel28)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(tfVolPJComplemento, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(pnEndereco1Layout.createSequentialGroup()
+                        .addGroup(pnEndereco1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel32)
+                            .addComponent(jLabel27)
+                            .addComponent(jLabel31))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(pnEndereco1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(ftfVolPJCEP, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(pnEndereco1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(tfVolPJNumero, javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(cbVolPJUF, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
+                .addGap(0, 25, Short.MAX_VALUE))
+        );
+        pnEndereco1Layout.setVerticalGroup(
+            pnEndereco1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnEndereco1Layout.createSequentialGroup()
+                .addGroup(pnEndereco1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(jLabel26)
+                    .addComponent(tfVolPJRua, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(pnEndereco1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(jLabel29)
+                    .addComponent(tfVolPJBairro, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(pnEndereco1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(jLabel28)
+                    .addComponent(tfVolPJComplemento, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(pnEndereco1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(tfVolPJCidade, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel30))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(pnEndereco1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(ftfVolPJCEP, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel32))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(pnEndereco1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(tfVolPJNumero, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel27))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(pnEndereco1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(cbVolPJUF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel31))
+                .addContainerGap(68, Short.MAX_VALUE))
+        );
+
+        pnCdVolPJ.add(pnEndereco1, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 60, 200, 250));
+
+        jLabel33.setText("Endereço");
+        pnCdVolPJ.add(jLabel33, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 40, -1, 20));
+
+        jLabel34.setText("Dados");
+        pnCdVolPJ.add(jLabel34, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 40, -1, 20));
+
+        jPanel4.setBackground(new java.awt.Color(204, 204, 204));
+        jPanel4.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED, null, null, null, new java.awt.Color(102, 0, 102)));
+
+        jLabel35.setText("Usuário");
+
+        jLabel36.setText("Senha");
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel35, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel36, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(tfVolPJUsuario)
+                    .addComponent(tfVolPJSenha, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE))
+                .addGap(30, 30, 30))
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel35)
+                    .addComponent(tfVolPJUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel36)
+                    .addComponent(tfVolPJSenha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(187, Short.MAX_VALUE))
+        );
+
+        pnCdVolPJ.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 60, 170, 250));
+
+        jLabel37.setText("Conta");
+        pnCdVolPJ.add(jLabel37, new org.netbeans.lib.awtextra.AbsoluteConstraints(680, 40, -1, 20));
+
+        ldFuncionario.add(pnCdVolPJ, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 500));
+
+        pnCdEvento.setBackground(new java.awt.Color(204, 204, 204));
+        pnCdEvento.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        pnMainTitle1.setkBorderRadius(0);
+        pnMainTitle1.setkEndColor(new java.awt.Color(204, 0, 204));
+        pnMainTitle1.setkStartColor(new java.awt.Color(51, 0, 102));
+        pnMainTitle1.setPreferredSize(new java.awt.Dimension(640, 40));
+
+        jLabel25.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel25.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel25.setText("Cadastrar Evento");
+
+        javax.swing.GroupLayout pnMainTitle1Layout = new javax.swing.GroupLayout(pnMainTitle1);
+        pnMainTitle1.setLayout(pnMainTitle1Layout);
+        pnMainTitle1Layout.setHorizontalGroup(
+            pnMainTitle1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnMainTitle1Layout.createSequentialGroup()
+                .addContainerGap(251, Short.MAX_VALUE)
+                .addComponent(jLabel25)
+                .addGap(244, 244, 244))
+        );
+        pnMainTitle1Layout.setVerticalGroup(
+            pnMainTitle1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnMainTitle1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel25)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        pnCdEvento.add(pnMainTitle1, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 0, 640, 40));
+
+        jPanel5.setBackground(new java.awt.Color(204, 204, 204));
+        jPanel5.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED, null, null, null, new java.awt.Color(102, 0, 102)));
+
+        jLabel38.setText("Nome");
+
+        jLabel39.setText("Data");
+
+        try {
+            ftfDataEvento.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.MaskFormatter("##/##/####")));
+        } catch (java.text.ParseException ex) {
+            ex.printStackTrace();
+        }
+
+        jScrollPane2.setViewportView(tpObjetivoEvento);
+
+        jLabel40.setText("Objetivo");
+
+        try {
+            ftfDuracaoInicio.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.MaskFormatter("##:##")));
+        } catch (java.text.ParseException ex) {
+            ex.printStackTrace();
+        }
+        ftfDuracaoInicio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ftfDuracaoInicioActionPerformed(evt);
+            }
+        });
+
+        try {
+            ftfDuracaoFim.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.MaskFormatter("##:##")));
+        } catch (java.text.ParseException ex) {
+            ex.printStackTrace();
+        }
+
+        jLabel41.setText("Duração");
+
+        jLabel44.setText("    Início    –      Fim");
+
+        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
+        jPanel5.setLayout(jPanel5Layout);
+        jPanel5Layout.setHorizontalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel5Layout.createSequentialGroup()
+                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel41)
+                            .addComponent(jLabel39))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jPanel5Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jLabel38)
+                        .addGap(6, 6, 6)))
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(tfNomeEvento)
+                    .addComponent(jLabel44, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
+                    .addGroup(jPanel5Layout.createSequentialGroup()
+                        .addComponent(ftfDuracaoInicio, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(ftfDuracaoFim))
+                    .addComponent(ftfDataEvento))
+                .addGap(30, 30, 30)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel40))
+                .addContainerGap())
+        );
+        jPanel5Layout.setVerticalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addGap(11, 11, 11)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(tfNomeEvento, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel38))
+                .addGap(8, 8, 8)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel39)
+                    .addComponent(ftfDataEvento, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel41)
+                    .addComponent(ftfDuracaoInicio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(ftfDuracaoFim, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(8, 8, 8)
+                .addComponent(jLabel44)
+                .addContainerGap(27, Short.MAX_VALUE))
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel40)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane2)
+                .addContainerGap())
+        );
+
+        pnCdEvento.add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 60, 410, 140));
+
+        jLabel43.setText("Dados");
+        pnCdEvento.add(jLabel43, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 44, -1, 20));
+
+        jLGastos.setModel(converterFuncionariosLista());
+        jScrollPane3.setViewportView(jLGastos);
+
+        pnCdEvento.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 340, 410, 110));
+
+        jLabel42.setText("Selecionar funcionário responsável");
+        pnCdEvento.add(jLabel42, new org.netbeans.lib.awtextra.AbsoluteConstraints(410, 204, -1, 20));
+
+        jLabel45.setText("Gastos");
+        pnCdEvento.add(jLabel45, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 320, -1, 20));
+
+        jLFuncionarios.setModel(converterFuncionariosLista());
+        jScrollPane5.setViewportView(jLFuncionarios);
+
+        pnCdEvento.add(jScrollPane5, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 220, 410, 80));
+
+        btInfoFuncionario.setText("Ver informações");
+        btInfoFuncionario.setFont(new java.awt.Font("Segoe UI", 0, 12)); // NOI18N
+        btInfoFuncionario.setkEndColor(new java.awt.Color(233, 193, 253));
+        btInfoFuncionario.setkHoverEndColor(new java.awt.Color(236, 174, 243));
+        btInfoFuncionario.setkHoverForeGround(new java.awt.Color(153, 0, 255));
+        btInfoFuncionario.setkHoverStartColor(new java.awt.Color(221, 143, 253));
+        btInfoFuncionario.setkPressedColor(new java.awt.Color(250, 209, 254));
+        btInfoFuncionario.setkStartColor(new java.awt.Color(199, 96, 230));
+        btInfoFuncionario.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btInfoFuncionarioActionPerformed(evt);
+            }
+        });
+        pnCdEvento.add(btInfoFuncionario, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 310, 100, 20));
+
+        btAddGasto.setText("Adicionar");
+        btAddGasto.setFont(new java.awt.Font("Segoe UI", 0, 12)); // NOI18N
+        btAddGasto.setkEndColor(new java.awt.Color(233, 193, 253));
+        btAddGasto.setkHoverEndColor(new java.awt.Color(236, 174, 243));
+        btAddGasto.setkHoverForeGround(new java.awt.Color(153, 0, 255));
+        btAddGasto.setkHoverStartColor(new java.awt.Color(221, 143, 253));
+        btAddGasto.setkPressedColor(new java.awt.Color(250, 209, 254));
+        btAddGasto.setkStartColor(new java.awt.Color(199, 96, 230));
+        btAddGasto.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btAddGastoActionPerformed(evt);
+            }
+        });
+        pnCdEvento.add(btAddGasto, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 460, 60, 20));
+        pnCdEvento.add(tfNomeGasto, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 460, 130, -1));
+
+        jLabel46.setText("Descrição");
+        pnCdEvento.add(jLabel46, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 460, 60, 20));
+
+        jLabel47.setText("Valor");
+        pnCdEvento.add(jLabel47, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 460, -1, 20));
+
+        btRemoveGasto.setText("Remover item");
+        btRemoveGasto.setFont(new java.awt.Font("Segoe UI", 0, 12)); // NOI18N
+        btRemoveGasto.setkEndColor(new java.awt.Color(233, 193, 253));
+        btRemoveGasto.setkHoverEndColor(new java.awt.Color(236, 174, 243));
+        btRemoveGasto.setkHoverForeGround(new java.awt.Color(153, 0, 255));
+        btRemoveGasto.setkHoverStartColor(new java.awt.Color(221, 143, 253));
+        btRemoveGasto.setkPressedColor(new java.awt.Color(250, 209, 254));
+        btRemoveGasto.setkStartColor(new java.awt.Color(199, 96, 230));
+        btRemoveGasto.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btRemoveGastoActionPerformed(evt);
+            }
+        });
+        pnCdEvento.add(btRemoveGasto, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 340, 80, 20));
+        pnCdEvento.add(tfValorGasto, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 460, 110, -1));
+
+        btCadastrarEvento.setText("Cadastrar Evento");
+        btCadastrarEvento.setFont(new java.awt.Font("Segoe UI", 0, 12)); // NOI18N
+        btCadastrarEvento.setkEndColor(new java.awt.Color(233, 193, 253));
+        btCadastrarEvento.setkHoverEndColor(new java.awt.Color(236, 174, 243));
+        btCadastrarEvento.setkHoverForeGround(new java.awt.Color(153, 0, 255));
+        btCadastrarEvento.setkHoverStartColor(new java.awt.Color(221, 143, 253));
+        btCadastrarEvento.setkPressedColor(new java.awt.Color(250, 209, 254));
+        btCadastrarEvento.setkStartColor(new java.awt.Color(199, 96, 230));
+        btCadastrarEvento.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btCadastrarEventoActionPerformed(evt);
+            }
+        });
+        pnCdEvento.add(btCadastrarEvento, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 430, 100, 50));
+
+        ldFuncionario.add(pnCdEvento, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 500));
 
         getContentPane().add(ldFuncionario, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 500));
 
@@ -522,65 +1398,23 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_tfLoginActionPerformed
 
-    private void btLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btLoginActionPerformed
-		String senha = new String(pfSenha.getPassword());
-		for(int i = 0; i < listaContas.size(); i++){
-			if(tfLogin.getText().equals(listaContas.get(i).getUsuario()) && senha.equals(listaContas.get(i).getSenha())){
-				connected = true;
-				userId = i;
-				i = listaContas.size();
-			}
-		}
-		if(connected){
-			JOptionPane.showMessageDialog(rootPane, "Conectado com sucesso!", "Login", JOptionPane.INFORMATION_MESSAGE);
-			
-			if(this.listaContas.get(this.userId).getTipo().equals("Funcionário")){
-				for(int i = 0; i < this.listaFuncionarios.size(); i++){
-					if(this.listaFuncionarios.get(i).getIdConta() == this.userId){
-						this.userFuncionario = this.listaFuncionarios.get(i);
-						i = this.listaFuncionarios.size();
-						resetLayers();
-						enableFuncionario();
-					}
-				}
-			}
-			else if(this.listaContas.get(this.userId).getTipo().equals("Gestor")){
-				for(int i = 0; i < listaGestores.size(); i++){
-					if(this.listaGestores.get(i).getIdConta() == this.userId){
-						this.userGestor = this.listaGestores.get(i);
-						i = this.listaGestores.size();
-					}
-				}
-			}
-			else if(this.listaContas.get(this.userId).getTipo().equals("VoluntárioPF")){
-				for(int i = 0; i < listaVoluntarios.size(); i++){
-					if(this.listaVoluntarios.get(i).getIdConta() == this.userId){
-						this.userVolPF = (VoluntarioPF)this.listaVoluntarios.get(i);
-						i = this.listaVoluntarios.size();
-					}
-				}
-			}
-			else if(this.listaContas.get(this.userId).getTipo().equals("VoluntárioPJ")){
-				for(int i = 0; i < listaVoluntarios.size(); i++){
-					if(this.listaVoluntarios.get(i).getIdConta() == this.userId){
-						this.userVolPJ = (VoluntarioPJ)this.listaVoluntarios.get(i);
-						i = this.listaVoluntarios.size();
-					}
-				}
-			}
-		}
-		else{
-			JOptionPane.showMessageDialog(rootPane, "Usuário e/ou senha incorreto(s)!", "Login", JOptionPane.ERROR_MESSAGE);
-		}
-		
-    }//GEN-LAST:event_btLoginActionPerformed
-
     private void btEntregasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btEntregasActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_btEntregasActionPerformed
 
     private void btCadastroVoluntarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btCadastroVoluntarioActionPerformed
-        // TODO add your handling code here:
+       Object[] tipoVol = {"Pessoa Física", "Pessoa Jurídica"};
+	   Object choice = JOptionPane.showOptionDialog(rootPane, "Qual tipo de voluntário deseja cadastrar?", "Cadastrar Voluntário", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, tipoVol, tipoVol);
+	   if(choice.toString().equals("0")){
+		   resetLayers();
+		   pnFuncionario.setVisible(true);
+		   pnCdVolPF.setVisible(true);
+	   }
+	   else if(choice.toString().equals("1")){
+		   resetLayers();
+		   pnFuncionario.setVisible(true);
+		   pnCdVolPJ.setVisible(true);
+	   }
     }//GEN-LAST:event_btCadastroVoluntarioActionPerformed
 
     private void btFuncInicioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btFuncInicioActionPerformed
@@ -589,7 +1423,10 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
     }//GEN-LAST:event_btFuncInicioActionPerformed
 
     private void btCadastroEventoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btCadastroEventoActionPerformed
-        // TODO add your handling code here:
+        resetLayers();
+		pnFuncionario.setVisible(true);
+		pnCdEvento.setVisible(true);
+		jLFuncionarios.setModel(converterFuncionariosLista());
     }//GEN-LAST:event_btCadastroEventoActionPerformed
 
     private void btLogin5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btLogin5ActionPerformed
@@ -622,7 +1459,7 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
 
     private void btFuncLogout1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btFuncLogout1ActionPerformed
         Object[] botoesDesconectar = {"Desconectar", "Voltar"};
-		Object choice = JOptionPane.showOptionDialog(rootPane, "Tem certeza que deseja sair?", "Desconectar", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, botoesDesconectar, botoesDesconectar[0]);
+		Object choice = JOptionPane.showOptionDialog(rootPane, "Tem certeza que deseja sair?", "Desconectar", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, botoesDesconectar, botoesDesconectar);
 		if(choice.toString().equals("0")){
 			connected = false;
 			userFuncionario = null;
@@ -630,6 +1467,63 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
 			loginPanel.setVisible(true);
 		}
     }//GEN-LAST:event_btFuncLogout1ActionPerformed
+
+    private void btCadastrarVolPFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btCadastrarVolPFActionPerformed
+        listaContas.add(new Conta(idCount, tfVolPFUsuario.getText(), tfVolPFSenha.getText(), "VoluntárioPF"));
+		
+		listaVoluntarios.add(new VoluntarioPF(idCount, tfVolPFNome.getText(), ftfVolPFTelefone.getText(), 
+				new Endereco(tfVolPFRua.getText(), tfVolPFNumero.getText(), tfVolPFComplemento.getText(), 
+				tfVolPFBairro.getText(), tfVolPFCidade.getText(), cbVolPFUF.getSelectedItem().toString(), 
+				ftfVolPFCEP.getText()), ftfVolPFCPF.getText(), cbVolPFSexo.getSelectedItem().toString(), 
+				cbVolPFTurno.getSelectedItem().toString()));
+		JOptionPane.showMessageDialog(rootPane, "Voluntário cadastrado com sucesso!");
+		idCount++;
+		clearCdVolPF();
+		resetLayers();
+		enableFuncionario();
+    }//GEN-LAST:event_btCadastrarVolPFActionPerformed
+
+    private void btCadastrarVolPJActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btCadastrarVolPJActionPerformed
+        listaContas.add(new Conta(idCount, tfVolPJUsuario.getText(), tfVolPJSenha.getText(), "VoluntárioPJ"));
+		
+		listaVoluntarios.add(new VoluntarioPJ(idCount, tfVolPJNome.getText(), ftfVolPJTelefone.getText(), 
+				new Endereco(tfVolPJRua.getText(), tfVolPJNumero.getText(), tfVolPJComplemento.getText(), 
+				tfVolPJBairro.getText(), tfVolPJCidade.getText(), cbVolPJUF.getSelectedItem().toString(), 
+				ftfVolPJCEP.getText()), ftfVolPJCNPJ.getText(), ftfVolPJIE.getText()));
+		JOptionPane.showMessageDialog(rootPane, "Voluntário cadastrado com sucesso!");
+		idCount++;
+		clearCdVolPJ();
+		resetLayers();
+		enableFuncionario();
+    }//GEN-LAST:event_btCadastrarVolPJActionPerformed
+
+    private void ftfDuracaoInicioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ftfDuracaoInicioActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_ftfDuracaoInicioActionPerformed
+
+    private void btInfoFuncionarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btInfoFuncionarioActionPerformed
+        JOptionPane.showMessageDialog(rootPane, listaFuncionarios.get(jLFuncionarios.getAnchorSelectionIndex()));
+    }//GEN-LAST:event_btInfoFuncionarioActionPerformed
+
+    private void btAddGastoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btAddGastoActionPerformed
+        listaGastosTemp.add(new Gasto(tfNomeGasto.getText(), Double.parseDouble(tfValorGasto.getText())));
+		jLGastos.setModel(converterGastosLista());
+    }//GEN-LAST:event_btAddGastoActionPerformed
+
+    private void btRemoveGastoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btRemoveGastoActionPerformed
+        listaGastosTemp.remove(jLGastos.getAnchorSelectionIndex());
+		jLGastos.setModel(converterGastosLista());
+    }//GEN-LAST:event_btRemoveGastoActionPerformed
+
+    private void btCadastrarEventoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btCadastrarEventoActionPerformed
+        listaEventos.add(new Evento(tfNomeEvento.getText(), ftfDataEvento.getText(), 
+				String.format("%s – %s", ftfDuracaoInicio.getText(), ftfDuracaoFim.getText()), 
+				tpObjetivoEvento.getText(), listaGastosTemp, listaFuncionarios.get(jLFuncionarios.getAnchorSelectionIndex())));
+		clearCdEvento();
+		resetLayers();
+		enableFuncionario();
+		JOptionPane.showMessageDialog(rootPane, "Evento cadastrado com sucesso!", "Cadastrar Evento", JOptionPane.INFORMATION_MESSAGE);
+    }//GEN-LAST:event_btCadastrarEventoActionPerformed
 
     /**
      * @param args the command line arguments
@@ -669,6 +1563,10 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private keeptoo.KButton btAceitarDoacao;
+    private keeptoo.KButton btAddGasto;
+    private keeptoo.KButton btCadastrarEvento;
+    private keeptoo.KButton btCadastrarVolPF;
+    private keeptoo.KButton btCadastrarVolPJ;
     private keeptoo.KButton btCadastroEvento;
     private keeptoo.KButton btCadastroTrabalho;
     private keeptoo.KButton btCadastroVoluntario;
@@ -676,16 +1574,84 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
     private keeptoo.KButton btFuncInicio;
     private keeptoo.KButton btFuncLogout1;
     private keeptoo.KButton btImportarDados;
+    private keeptoo.KButton btInfoFuncionario;
     private keeptoo.KButton btLogin;
     private keeptoo.KButton btLogin5;
     private keeptoo.KButton btRelatorios;
+    private keeptoo.KButton btRemoveGasto;
     private keeptoo.KButton btRemoverVoluntario;
+    private javax.swing.JComboBox<String> cbVolPFSexo;
+    private javax.swing.JComboBox<String> cbVolPFTurno;
+    private javax.swing.JComboBox<String> cbVolPFUF;
+    private javax.swing.JComboBox<String> cbVolPJUF;
+    private javax.swing.JFormattedTextField ftfDataEvento;
+    private javax.swing.JFormattedTextField ftfDuracaoFim;
+    private javax.swing.JFormattedTextField ftfDuracaoInicio;
+    private javax.swing.JFormattedTextField ftfVolPFCEP;
+    private javax.swing.JFormattedTextField ftfVolPFCPF;
+    private javax.swing.JFormattedTextField ftfVolPFTelefone;
+    private javax.swing.JFormattedTextField ftfVolPJCEP;
+    private javax.swing.JFormattedTextField ftfVolPJCNPJ;
+    private javax.swing.JFormattedTextField ftfVolPJIE;
+    private javax.swing.JFormattedTextField ftfVolPJTelefone;
     private javax.swing.JLabel iconMV;
+    private javax.swing.JList<String> jLFuncionarios;
+    private javax.swing.JList<String> jLGastos;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel15;
+    private javax.swing.JLabel jLabel16;
+    private javax.swing.JLabel jLabel17;
+    private javax.swing.JLabel jLabel18;
+    private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel20;
+    private javax.swing.JLabel jLabel21;
+    private javax.swing.JLabel jLabel22;
+    private javax.swing.JLabel jLabel23;
+    private javax.swing.JLabel jLabel24;
+    private javax.swing.JLabel jLabel25;
+    private javax.swing.JLabel jLabel26;
+    private javax.swing.JLabel jLabel27;
+    private javax.swing.JLabel jLabel28;
+    private javax.swing.JLabel jLabel29;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel30;
+    private javax.swing.JLabel jLabel31;
+    private javax.swing.JLabel jLabel32;
+    private javax.swing.JLabel jLabel33;
+    private javax.swing.JLabel jLabel34;
+    private javax.swing.JLabel jLabel35;
+    private javax.swing.JLabel jLabel36;
+    private javax.swing.JLabel jLabel37;
+    private javax.swing.JLabel jLabel38;
+    private javax.swing.JLabel jLabel39;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel40;
+    private javax.swing.JLabel jLabel41;
+    private javax.swing.JLabel jLabel42;
+    private javax.swing.JLabel jLabel43;
+    private javax.swing.JLabel jLabel44;
+    private javax.swing.JLabel jLabel45;
+    private javax.swing.JLabel jLabel46;
+    private javax.swing.JLabel jLabel47;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JLabel lbLogin;
     private javax.swing.JLabel lbSenha;
     private javax.swing.JLabel lbTituloFuncionario;
@@ -693,13 +1659,41 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
     private javax.swing.JLayeredPane ldMenus;
     private keeptoo.KGradientPanel loginPanel;
     private javax.swing.JPasswordField pfSenha;
-    private javax.swing.JPanel pnCdVol;
+    private javax.swing.JPanel pnCdEvento;
+    private javax.swing.JPanel pnCdVolPF;
+    private javax.swing.JPanel pnCdVolPJ;
     private keeptoo.KGradientPanel pnCdVolTitle;
+    private keeptoo.KGradientPanel pnCdVolTitle1;
+    private javax.swing.JPanel pnDados;
+    private javax.swing.JPanel pnDados1;
+    private javax.swing.JPanel pnEndereco;
+    private javax.swing.JPanel pnEndereco1;
     private javax.swing.JPanel pnFuncMain;
     private keeptoo.KGradientPanel pnFuncionario;
     private keeptoo.KGradientPanel pnMainTitle;
+    private keeptoo.KGradientPanel pnMainTitle1;
     private javax.swing.JTextArea taInfoFuncionario;
     private javax.swing.JTextField tfLogin;
+    private javax.swing.JTextField tfNomeEvento;
+    private javax.swing.JTextField tfNomeGasto;
+    private javax.swing.JTextField tfValorGasto;
+    private javax.swing.JTextField tfVolPFBairro;
+    private javax.swing.JTextField tfVolPFCidade;
+    private javax.swing.JTextField tfVolPFComplemento;
+    private javax.swing.JTextField tfVolPFNome;
+    private javax.swing.JTextField tfVolPFNumero;
+    private javax.swing.JTextField tfVolPFRua;
+    private javax.swing.JTextField tfVolPFSenha;
+    private javax.swing.JTextField tfVolPFUsuario;
+    private javax.swing.JTextField tfVolPJBairro;
+    private javax.swing.JTextField tfVolPJCidade;
+    private javax.swing.JTextField tfVolPJComplemento;
+    private javax.swing.JTextField tfVolPJNome;
+    private javax.swing.JTextField tfVolPJNumero;
+    private javax.swing.JTextField tfVolPJRua;
+    private javax.swing.JTextField tfVolPJSenha;
+    private javax.swing.JTextField tfVolPJUsuario;
+    private javax.swing.JTextPane tpObjetivoEvento;
     // End of variables declaration//GEN-END:variables
 
 	
