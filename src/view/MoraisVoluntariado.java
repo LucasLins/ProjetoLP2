@@ -104,6 +104,14 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
 		jLGastos.setModel(converterGastosLista());
 	}
 	
+	public double calcularTotalGastosTemp(){
+		double totalgastos = 0;
+		for(int i = 0; i<listaGastosTemp.size(); i++){
+			totalgastos += listaGastosTemp.get(i).getValor();
+		}
+		return totalgastos;
+	}
+	
 	public DefaultListModel<String> converterFuncionariosLista(){
 		DefaultListModel<String> listModel = new DefaultListModel<String>();
 		for(int i = 0; i<listaFuncionarios.size(); i++){
@@ -260,6 +268,8 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
         btRemoveGasto = new keeptoo.KButton();
         tfValorGasto = new javax.swing.JTextField();
         btCadastrarEvento = new keeptoo.KButton();
+        lbTotalGastos = new javax.swing.JLabel();
+        jLabel48 = new javax.swing.JLabel();
 
         btLogin5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/new work.png"))); // NOI18N
         btLogin5.setText("Cadastrar Trabalho");
@@ -339,6 +349,11 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
         btLogin.setkHoverStartColor(new java.awt.Color(221, 143, 253));
         btLogin.setkPressedColor(new java.awt.Color(250, 209, 254));
         btLogin.setkStartColor(new java.awt.Color(199, 96, 230));
+        btLogin.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btLoginActionPerformed(evt);
+            }
+        });
         loginPanel.add(btLogin, new org.netbeans.lib.awtextra.AbsoluteConstraints(344, 364, 112, 32));
 
         iconMV.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/logotext.png"))); // NOI18N
@@ -1368,7 +1383,7 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
                 btRemoveGastoActionPerformed(evt);
             }
         });
-        pnCdEvento.add(btRemoveGasto, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 340, 80, 20));
+        pnCdEvento.add(btRemoveGasto, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 400, 80, 20));
         pnCdEvento.add(tfValorGasto, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 460, 110, -1));
 
         btCadastrarEvento.setText("Cadastrar Evento");
@@ -1385,6 +1400,12 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
             }
         });
         pnCdEvento.add(btCadastrarEvento, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 430, 100, 50));
+
+        lbTotalGastos.setText("R$ "+calcularTotalGastosTemp());
+        pnCdEvento.add(lbTotalGastos, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 360, 110, 20));
+
+        jLabel48.setText("Total");
+        pnCdEvento.add(jLabel48, new org.netbeans.lib.awtextra.AbsoluteConstraints(730, 340, -1, -1));
 
         ldFuncionario.add(pnCdEvento, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 500));
 
@@ -1508,11 +1529,13 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
     private void btAddGastoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btAddGastoActionPerformed
         listaGastosTemp.add(new Gasto(tfNomeGasto.getText(), Double.parseDouble(tfValorGasto.getText())));
 		jLGastos.setModel(converterGastosLista());
+		lbTotalGastos.setText("R$ "+calcularTotalGastosTemp());
     }//GEN-LAST:event_btAddGastoActionPerformed
 
     private void btRemoveGastoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btRemoveGastoActionPerformed
         listaGastosTemp.remove(jLGastos.getAnchorSelectionIndex());
 		jLGastos.setModel(converterGastosLista());
+		lbTotalGastos.setText("R$ "+calcularTotalGastosTemp());
     }//GEN-LAST:event_btRemoveGastoActionPerformed
 
     private void btCadastrarEventoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btCadastrarEventoActionPerformed
@@ -1524,6 +1547,58 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
 		enableFuncionario();
 		JOptionPane.showMessageDialog(rootPane, "Evento cadastrado com sucesso!", "Cadastrar Evento", JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_btCadastrarEventoActionPerformed
+
+    private void btLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btLoginActionPerformed
+        String senha = new String(pfSenha.getPassword());
+		for(int i = 0; i < listaContas.size(); i++){
+			if(tfLogin.getText().equals(listaContas.get(i).getUsuario()) && senha.equals(listaContas.get(i).getSenha())){
+				connected = true;
+				userId = i;
+				i = listaContas.size();
+			}
+		}
+		if(connected){
+			JOptionPane.showMessageDialog(rootPane, "Conectado com sucesso!", "Login", JOptionPane.INFORMATION_MESSAGE);
+			
+			if(this.listaContas.get(this.userId).getTipo().equals("Funcionário")){
+				for(int i = 0; i < this.listaFuncionarios.size(); i++){
+					if(this.listaFuncionarios.get(i).getIdConta() == this.userId){
+						this.userFuncionario = this.listaFuncionarios.get(i);
+						i = this.listaFuncionarios.size();
+						resetLayers();
+						enableFuncionario();
+					}
+				}
+			}
+			else if(this.listaContas.get(this.userId).getTipo().equals("Gestor")){
+				for(int i = 0; i < listaGestores.size(); i++){
+					if(this.listaGestores.get(i).getIdConta() == this.userId){
+						this.userGestor = this.listaGestores.get(i);
+						i = this.listaGestores.size();
+					}
+				}
+			}
+			else if(this.listaContas.get(this.userId).getTipo().equals("VoluntárioPF")){
+				for(int i = 0; i < listaVoluntarios.size(); i++){
+					if(this.listaVoluntarios.get(i).getIdConta() == this.userId){
+						this.userVolPF = (VoluntarioPF)this.listaVoluntarios.get(i);
+						i = this.listaVoluntarios.size();
+					}
+				}
+			}
+			else if(this.listaContas.get(this.userId).getTipo().equals("VoluntárioPJ")){
+				for(int i = 0; i < listaVoluntarios.size(); i++){
+					if(this.listaVoluntarios.get(i).getIdConta() == this.userId){
+						this.userVolPJ = (VoluntarioPJ)this.listaVoluntarios.get(i);
+						i = this.listaVoluntarios.size();
+					}
+				}
+			}
+		}
+		else{
+			JOptionPane.showMessageDialog(rootPane, "Usuário e/ou senha incorreto(s)!", "Login", JOptionPane.ERROR_MESSAGE);
+		}
+    }//GEN-LAST:event_btLoginActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1639,6 +1714,7 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel45;
     private javax.swing.JLabel jLabel46;
     private javax.swing.JLabel jLabel47;
+    private javax.swing.JLabel jLabel48;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
@@ -1655,6 +1731,7 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
     private javax.swing.JLabel lbLogin;
     private javax.swing.JLabel lbSenha;
     private javax.swing.JLabel lbTituloFuncionario;
+    private javax.swing.JLabel lbTotalGastos;
     private javax.swing.JLayeredPane ldFuncionario;
     private javax.swing.JLayeredPane ldMenus;
     private keeptoo.KGradientPanel loginPanel;
