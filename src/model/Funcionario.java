@@ -70,7 +70,7 @@ public class Funcionario {
     }
 
     public String toString() {
-		return "Funcionario: \nNome= " + nome + "\nSexo= " + sexo + "\nCPF= " + cpf + "\nTelefone= " + telefone + "\nEndereco= "
+		return "Funcionario: \nNome: " + nome + "\nSexo: " + sexo + "\nCPF: " + cpf + "\nTelefone: " + telefone + "\nEndereço:\n "
 		+ endereco;
     }
     
