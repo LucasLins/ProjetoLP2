@@ -37,7 +37,7 @@ public class Gasto {
 	}
 
 	public String toString() {
-		return String.format("Descrição: %s – Valor: %f", this.nome, this.valor);
+		return String.format("Descrição: %s – Valor: %f\n", this.nome, this.valor);
 	}
 	
 }

@@ -11,6 +11,11 @@ public class Trabalho {
         this.nome = nome;
         this.descricao = descricao;
     }
+
+	public Trabalho(String nome, String descricao) { // Construtor sem voluntário
+		this.nome = nome;
+		this.descricao = descricao;
+	}
     
     public Trabalho(){}
 
@@ -37,5 +42,12 @@ public class Trabalho {
     public void setDescricao(String descricao) {
         this.descricao = descricao;
     }
+
+	@Override
+	public String toString() {
+		return "Nome: " + nome + ", Descrição: " + descricao + "\n";
+	}
+	
+	
     
 }
