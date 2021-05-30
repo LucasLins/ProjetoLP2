@@ -6,7 +6,7 @@ import java.util.ArrayList;
 public class Doacao {
     private Voluntario vol;
     private double doacaoDinheiro = 0;
-    private ArrayList<Item> itens;
+    private ArrayList<Item> itens = new ArrayList<>();
     private boolean repetir;
     private String modoEntrega;
     private boolean entregue;
@@ -14,10 +14,9 @@ public class Doacao {
     
 	public Doacao(Voluntario vol, double doacaoDinheiro, ArrayList<Item> itens, boolean repetir, String modoEntrega,
 			boolean entregue, String data) {
-		super();
 		this.vol = vol;
 		this.doacaoDinheiro = doacaoDinheiro;
-		this.itens = itens;
+		this.itens.addAll(itens);
 		this.repetir = repetir;
 		this.modoEntrega = modoEntrega;
 		this.entregue = entregue;
@@ -81,10 +80,28 @@ public class Doacao {
 	public void setData(String data) {
 		this.data = data;
 	}
+	
+	public String infoRepetir(){
+		if(this.repetir == false){
+			return "Sim";
+		}
+		else{
+			return "Não";
+		}
+	}
+	
+	public String infoEntregue(){
+		if(this.entregue == false){
+			return "Sim";
+		}
+		else{
+			return "Não";
+		}
+	}
 
 	@Override
 	public String toString() {
-		return "Doacao{" + "vol=" + vol + ", doacaoDinheiro=" + doacaoDinheiro + ", itens=" + itens + ", repetir=" + repetir + ", modoEntrega=" + modoEntrega + ", entregue=" + entregue + ", data=" + data + '}';
+		return "Doação:\n" + "Voluntário: " + this.vol + ", Valor Dinheiro: " + this.doacaoDinheiro + ", Repetir: " + this.infoRepetir() + ", Modo de entrega: " + this.modoEntrega + ", Entregue: " + this.infoEntregue() + ", Data: " + this.data + "\nItens:\n" + this.itens;
 	}
 
 }

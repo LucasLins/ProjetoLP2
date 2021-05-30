@@ -2,23 +2,44 @@ package model;
 import java.util.ArrayList;
 
 public class Evento {
+	private String nome;
     private String data;
     private String duracao;
-    private ArrayList<Voluntario> equipe;
+    private ArrayList<Trabalho> trabalhos = new ArrayList<>();
     private String objetivo;
-    private double orcamento;
+    private ArrayList<Gasto> gastos = new ArrayList<>();
     private Funcionario responsavel;
 
-	public Evento(String data, String duracao, ArrayList<Voluntario> equipe, String objetivo, double orcamento, Funcionario responsavel) {
+	public Evento(String nome, String data, String duracao, ArrayList<Trabalho> trabalhos, String objetivo, ArrayList<Gasto> gastos, Funcionario responsavel) {
+		this.nome = nome;
 		this.data = data;
 		this.duracao = duracao;
-		this.equipe = equipe;
+		this.trabalhos.addAll(trabalhos);
 		this.objetivo = objetivo;
-		this.orcamento = orcamento;
+		this.gastos.addAll(gastos);
 		this.responsavel = responsavel;
 	}
 
+	public Evento(String nome, String data, String duracao, String objetivo, ArrayList<Gasto> gastos,Funcionario responsavel) { // Construtor sem atribuir trabalhos
+		this.nome = nome;
+		this.data = data;
+		this.duracao = duracao;
+		this.objetivo = objetivo;
+		this.gastos.addAll(gastos);
+		this.responsavel = responsavel;
+	}
+	
+	
+
 	public Evento() {}
+
+	public String getNome() {
+		return nome;
+	}
+
+	public void setNome(String nome) {
+		this.nome = nome;
+	}
 
 	public String getData() {
 		return data;
@@ -36,12 +57,16 @@ public class Evento {
 		this.duracao = duracao;
 	}
 
-	public ArrayList<Voluntario> getEquipe() {
-		return equipe;
+	public ArrayList<Trabalho> getTrabalhos() {
+		return trabalhos;
+	}
+	
+	public void setTrabalhos(ArrayList<Trabalho> trabalhos) {
+		this.trabalhos.addAll(trabalhos);
 	}
 
-	public void setEquipe(ArrayList<Voluntario> equipe) {
-		this.equipe = equipe;
+	public void setEquipe(ArrayList<Trabalho> trabalhos) {
+		this.trabalhos = trabalhos;
 	}
 
 	public String getObjetivo() {
@@ -52,14 +77,14 @@ public class Evento {
 		this.objetivo = objetivo;
 	}
 
-	public double getOrcamento() {
-		return orcamento;
+	public ArrayList<Gasto> getGastos() {
+		return gastos;
 	}
 
-	public void setOrcamento(double orcamento) {
-		this.orcamento = orcamento;
+	public void setGastos(ArrayList<Gasto> gastos) {
+		this.gastos.addAll(gastos);
 	}
-
+	
 	public Funcionario getResponsavel() {
 		return responsavel;
 	}
@@ -67,9 +92,31 @@ public class Evento {
 	public void setResponsavel(Funcionario responsavel) {
 		this.responsavel = responsavel;
 	}
+	
+	
+	public String infoGastos(){
+		String listaGastos = "";
+		for(int i = 0; i<gastos.size(); i++){
+			listaGastos += gastos.get(i).toString();
+		}
+		return listaGastos;
+	}
+	
+	public String infoTrabalhos(){
+		String listaTrabalhos = "";
+		for(int i = 0; i<trabalhos.size(); i++){
+			listaTrabalhos += trabalhos.get(i);
+		}
+		return listaTrabalhos;
+	}
+	
+	public void setVoluntarioTrabalho(int index, Voluntario vol){
+		this.trabalhos.get(index).setVol(vol);
+	}
 
+	@Override
 	public String toString() {
-		return "Evento{" + "data=" + data + ", duracao=" + duracao + ", equipe=" + equipe + ", objetivo=" + objetivo + ", orcamento=" + orcamento + ", responsavel=" + responsavel + '}';
+		return "Evento:\n" + "Nome:" + nome + ", Data:" + data + ", Duração:" + duracao + ", Objetivo:" + objetivo + "\nGastos:\n" + infoGastos() + "\nResponsável:\n" + responsavel;
 	}
 	
 }
