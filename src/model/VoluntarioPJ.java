@@ -28,7 +28,7 @@ public class VoluntarioPJ extends Voluntario {
 
     @Override
     public String toString() {
-        return "VoluntarioPJ{" + "cnpj=" + cnpj + ", incestadual=" + incestadual + '}';
+        return "Nome Fantasia: " + super.getNome() + ", Telefone: " + super.getTelefone() + ", CNPJ: " + cnpj + ", Inscrição Estadual: " + incestadual + "\nEndereço:\n" + super.getEndereco();
     }
 	
 }

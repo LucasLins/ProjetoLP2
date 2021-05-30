@@ -38,9 +38,9 @@ public class VoluntarioPF extends Voluntario {
         this.turno = turno;
     }
 
-    @Override
-    public String toString() {
-        return "VoluntarioPF{" + "cpf=" + cpf + ", sexo=" + sexo + ", turno=" + turno + '}';
-    }
+	@Override
+	public String toString() {
+		return "Nome: " + super.getNome() + ", Telefone: " + super.getTelefone() + ", CPF: " + cpf + ", Sexo: " + sexo + ", Turno: " + turno + "\nEndereço:\n" + super.getEndereco();
+	}
 
 }

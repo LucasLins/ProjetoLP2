@@ -2,13 +2,11 @@ package model;
 
 public class Item {
 	private String nome;
-	private double peso;
 	private int quantidade;
 	
-	public Item(String nome, double peso, int quantidade) {
+	public Item(String nome,  int quantidade) {
 		super();
 		this.nome = nome;
-		this.peso = peso;
 		this.quantidade = quantidade;
 	}
 	
@@ -22,14 +20,6 @@ public class Item {
 		this.nome = nome;
 	}
 
-	public double getPeso() {
-		return peso;
-	}
-
-	public void setPeso(double peso) {
-		this.peso = peso;
-	}
-
 	public int getQuantidade() {
 		return quantidade;
 	}
@@ -40,7 +30,7 @@ public class Item {
 
 	@Override
 	public String toString() {
-		return "Item{" + "nome=" + nome + ", peso=" + peso + ", quantidade=" + quantidade + '}';
+		return "Nome: " + nome + ", Quantidade: " + quantidade;
 	}
 
 }
