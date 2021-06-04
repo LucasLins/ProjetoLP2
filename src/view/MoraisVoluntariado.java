@@ -41,7 +41,7 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
 	boolean connected = false;
 	private int accountID;
 	private int userID;
-	private int idCount = 4;
+	private int idCount = 1;
 	private ArrayList<Conta> listaContas = new ArrayList<Conta>();
 	private ArrayList<Funcionario> listaFuncionarios = new ArrayList<Funcionario>();
 	private ArrayList<Gestor> listaGestores = new ArrayList<Gestor>();
@@ -66,14 +66,8 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
 		resetLayers();
 		loginPanel.setVisible(true);
 		
-		listaContas.add(new Conta(0, "lucaslins", "88219442", "Funcionário"));
-		listaContas.add(new Conta(1, "lucaslins2", "88219442", "VoluntárioPF"));
-		listaContas.add(new Conta(2, "lucaslins3", "88219442", "VoluntárioPJ"));
-		listaContas.add(new Conta(3, "lucaslins4", "88219442", "Gestor"));
-		listaFuncionarios.add(new Funcionario(0, "Lucas Lins", "Masculino", "123456789", "88219442", null));
-		listaVoluntarios.add(new VoluntarioPF(1, "Linsdo", "83982105547", null, "12345", "Masculino", "Noite"));
-		listaVoluntarios.add(new VoluntarioPJ(2, "Alana", "83982105547", null, "12345678", "12345678"));
-		listaGestores.add(new Gestor(3, "Alana Marques", "Feminino", "123456789", "83982105547", null));
+		listaContas.add(new Conta(0, "lucaslins", "88219442", "Gestor"));
+		listaGestores.add(new Gestor(0, "Alana Marques", "Feminino", "123456789", "83982105547", null));
     }
 	
 	public void resetLayers(){
