@@ -1,0 +1,8 @@
+
+Doação:
+Voluntário: Nome: Linsdo, Telefone: 83982105547, CPF: 12345, Sexo: Masculino, Turno: Noite
+Endereço:
+null
+Valor Dinheiro: 12034.0, Repetir: Sim, Modo de entrega: Retirada, Entregue: Sim, Data: 31/05/2021
+Itens:
+[]
