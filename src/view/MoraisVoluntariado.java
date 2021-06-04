@@ -715,7 +715,7 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
         ftfGestorCPF = new javax.swing.JFormattedTextField();
         jLabel79 = new javax.swing.JLabel();
         cbGestorSexo = new javax.swing.JComboBox<>();
-        btCadastrarVolPF1 = new keeptoo.KButton();
+        btCadastrarFuncionario = new keeptoo.KButton();
         pnEndereco2 = new javax.swing.JPanel();
         jLabel81 = new javax.swing.JLabel();
         tfGestorRua = new javax.swing.JTextField();
@@ -3745,20 +3745,20 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
 
         pnCadastrarFunc.add(pnDados2, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 60, 168, 250));
 
-        btCadastrarVolPF1.setText("Cadastrar");
-        btCadastrarVolPF1.setFont(new java.awt.Font("Segoe UI", 0, 12)); // NOI18N
-        btCadastrarVolPF1.setkEndColor(new java.awt.Color(233, 193, 253));
-        btCadastrarVolPF1.setkHoverEndColor(new java.awt.Color(236, 174, 243));
-        btCadastrarVolPF1.setkHoverForeGround(new java.awt.Color(153, 0, 255));
-        btCadastrarVolPF1.setkHoverStartColor(new java.awt.Color(221, 143, 253));
-        btCadastrarVolPF1.setkPressedColor(new java.awt.Color(250, 209, 254));
-        btCadastrarVolPF1.setkStartColor(new java.awt.Color(199, 96, 230));
-        btCadastrarVolPF1.addActionListener(new java.awt.event.ActionListener() {
+        btCadastrarFuncionario.setText("Cadastrar");
+        btCadastrarFuncionario.setFont(new java.awt.Font("Segoe UI", 0, 12)); // NOI18N
+        btCadastrarFuncionario.setkEndColor(new java.awt.Color(233, 193, 253));
+        btCadastrarFuncionario.setkHoverEndColor(new java.awt.Color(236, 174, 243));
+        btCadastrarFuncionario.setkHoverForeGround(new java.awt.Color(153, 0, 255));
+        btCadastrarFuncionario.setkHoverStartColor(new java.awt.Color(221, 143, 253));
+        btCadastrarFuncionario.setkPressedColor(new java.awt.Color(250, 209, 254));
+        btCadastrarFuncionario.setkStartColor(new java.awt.Color(199, 96, 230));
+        btCadastrarFuncionario.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btCadastrarVolPF1ActionPerformed(evt);
+                btCadastrarFuncionarioActionPerformed(evt);
             }
         });
-        pnCadastrarFunc.add(btCadastrarVolPF1, new org.netbeans.lib.awtextra.AbsoluteConstraints(650, 320, 110, 30));
+        pnCadastrarFunc.add(btCadastrarFuncionario, new org.netbeans.lib.awtextra.AbsoluteConstraints(650, 320, 110, 30));
 
         pnEndereco2.setBackground(new java.awt.Color(204, 204, 204));
         pnEndereco2.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED, null, null, null, new java.awt.Color(102, 0, 102)));
@@ -4343,16 +4343,15 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
 		JOptionPane.showMessageDialog(rootPane, "Arquivo Relatório Financeiro.txt gerado com sucesso!", "Relatório Financeiro", JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_btGestorRelatorioActionPerformed
 
-    private void btCadastrarVolPF1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btCadastrarVolPF1ActionPerformed
-        listaContas.add(new Conta(idCount, tfGestorUsuario.getText(), tfGestorSenha.getText(), "Gestor"));
-		
-		listaGestores.add(new Gestor(idCount, tfGestorNome.getText(), cbGestorSexo.getSelectedItem().toString(), ftfGestorCPF.getText(), ftfGestorTelefone.getText(), new Endereco(tfGestorRua.getText(), tfGestorNumero.getText(), tfGestorComplemento.getText(), tfGestorBairro.getText(), tfGestorCidade.getText(), cbGestorUF.getSelectedItem().toString(), ftfGestorCEP.getText())));
-		JOptionPane.showMessageDialog(rootPane, "Voluntário cadastrado com sucesso!");
+    private void btCadastrarFuncionarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btCadastrarFuncionarioActionPerformed
+        listaContas.add(new Conta(idCount, tfGestorUsuario.getText(), tfGestorSenha.getText(), "Funcionário"));
+		listaFuncionarios.add(new Funcionario(idCount, tfGestorNome.getText(), cbGestorSexo.getSelectedItem().toString(), ftfGestorCPF.getText(), ftfGestorTelefone.getText(), new Endereco(tfGestorRua.getText(), tfGestorNumero.getText(), tfGestorComplemento.getText(), tfGestorBairro.getText(), tfGestorCidade.getText(), cbGestorUF.getSelectedItem().toString(), ftfGestorCEP.getText())));
+		JOptionPane.showMessageDialog(rootPane, "Funcionário cadastrado com sucesso!");
 		idCount++;
 		clearGestor();
 		resetLayers();
 		enableGestor();
-    }//GEN-LAST:event_btCadastrarVolPF1ActionPerformed
+    }//GEN-LAST:event_btCadastrarFuncionarioActionPerformed
 
     private void btInfoDoacaoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btInfoDoacaoActionPerformed
         JOptionPane.showMessageDialog(rootPane, listaDoacoesPendentes.get(jLDoacoesPendentes.getAnchorSelectionIndex()), "Doação", JOptionPane.INFORMATION_MESSAGE);
@@ -4429,9 +4428,9 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
     private keeptoo.KButton btAddItem;
     private keeptoo.KButton btAdicionarTrabalho;
     private keeptoo.KButton btCadastrarEvento;
+    private keeptoo.KButton btCadastrarFuncionario;
     private keeptoo.KButton btCadastrarTrabalho;
     private keeptoo.KButton btCadastrarVolPF;
-    private keeptoo.KButton btCadastrarVolPF1;
     private keeptoo.KButton btCadastrarVolPJ;
     private keeptoo.KButton btCadastroEvento;
     private keeptoo.KButton btCadastroTrabalho;
