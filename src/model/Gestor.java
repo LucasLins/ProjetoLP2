@@ -77,7 +77,7 @@ public class Gestor {
 	}
 
     public String toString() {
-		return "Gestor: \nNome= " + nome + "\nSexo= " + sexo + "\nCPF= " + cpf + "\nTelefone= " + telefone + "\nEndereco= "
+		return "Gestor: \nNome: " + nome + "\nSexo: " + sexo + "\nCPF: " + cpf + "\nTelefone: " + telefone + "\nEndereco: "
 	+ endereco;
     }
     

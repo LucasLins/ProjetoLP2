@@ -40,7 +40,7 @@ public class VoluntarioPF extends Voluntario {
 
 	@Override
 	public String toString() {
-		return "Nome: " + super.getNome() + ", Telefone: " + super.getTelefone() + ", CPF: " + cpf + ", Sexo: " + sexo + ", Turno: " + turno + "\nEndereço:\n" + super.getEndereco();
+		return "Nome: " + super.getNome() + ", Telefone: " + super.getTelefone() + ", CPF: " + cpf + ", Sexo: " + sexo + ", Turno: " + turno + "\nEndereço:\n" + super.getEndereco() + '\n';
 	}
 
 }

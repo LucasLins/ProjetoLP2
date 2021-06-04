@@ -92,16 +92,16 @@ public class Doacao {
 	
 	public String infoEntregue(){
 		if(this.entregue == false){
-			return "Sim";
+			return "Não";
 		}
 		else{
-			return "Não";
+			return "Sim";
 		}
 	}
 
 	@Override
 	public String toString() {
-		return "Doação:\n" + "Voluntário: " + this.vol + ", Valor Dinheiro: " + this.doacaoDinheiro + ", Repetir: " + this.infoRepetir() + ", Modo de entrega: " + this.modoEntrega + ", Entregue: " + this.infoEntregue() + ", Data: " + this.data + "\nItens:\n" + this.itens;
+		return "Doação:\n" + "Voluntário: " + this.vol + "Valor Dinheiro: " + this.doacaoDinheiro + ", Repetir: " + this.infoRepetir() + ", Modo de entrega: " + this.modoEntrega + ", Entregue: " + this.infoEntregue() + ", Data: " + this.data + "\nItens:\n" + this.itens;
 	}
 
 }

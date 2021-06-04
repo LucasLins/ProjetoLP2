@@ -6,8 +6,13 @@
 package view;
 
 import java.awt.Color;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 import javax.swing.ListModel;
@@ -36,7 +41,7 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
 	boolean connected = false;
 	private int accountID;
 	private int userID;
-	private int idCount = 1;
+	private int idCount = 4;
 	private ArrayList<Conta> listaContas = new ArrayList<Conta>();
 	private ArrayList<Funcionario> listaFuncionarios = new ArrayList<Funcionario>();
 	private ArrayList<Gestor> listaGestores = new ArrayList<Gestor>();
@@ -48,17 +53,27 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
 	private ArrayList<Doacao> listaDoacoes = new ArrayList<Doacao>();
 	private ArrayList<Doacao> listaDoacoesPendentes = new ArrayList<Doacao>();
 	DefaultListModel<String> cleanList = new DefaultListModel<String>();
+	FileWriter arquivoEventos = new FileWriter("Eventos.txt");
+	FileWriter arquivoDoacoes = new FileWriter("Doações.txt");
+	FileWriter arquivoFinanceiro = new FileWriter("Relatório Financeiro.txt");
+	PrintWriter escreverArquivoE = new PrintWriter(arquivoEventos);
+	PrintWriter escreverArquivoD = new PrintWriter(arquivoDoacoes);
+	PrintWriter escreverArquivoF = new PrintWriter(arquivoFinanceiro);
 	
 	
-    public MoraisVoluntariado() {
+    public MoraisVoluntariado() throws IOException {
         initComponents();
 		resetLayers();
 		loginPanel.setVisible(true);
 		
 		listaContas.add(new Conta(0, "lucaslins", "88219442", "Funcionário"));
-		listaContas.add(new Conta(1, "alana", "d8cs9tua", "VoluntárioPF"));
+		listaContas.add(new Conta(1, "lucaslins2", "88219442", "VoluntárioPF"));
+		listaContas.add(new Conta(2, "lucaslins3", "88219442", "VoluntárioPJ"));
+		listaContas.add(new Conta(3, "lucaslins4", "88219442", "Gestor"));
 		listaFuncionarios.add(new Funcionario(0, "Lucas Lins", "Masculino", "123456789", "88219442", null));
 		listaVoluntarios.add(new VoluntarioPF(1, "Linsdo", "83982105547", null, "12345", "Masculino", "Noite"));
+		listaVoluntarios.add(new VoluntarioPJ(2, "Alana", "83982105547", null, "12345678", "12345678"));
+		listaGestores.add(new Gestor(3, "Alana Marques", "Feminino", "123456789", "83982105547", null));
     }
 	
 	public void resetLayers(){
@@ -74,13 +89,29 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
 		pnCdTrabalho.setVisible(false);
 		pnRvVol.setVisible(false);
 		pnFuncEventos.setVisible(false);
+		pnAceitarDoacao.setVisible(false);
+		pnGerenciarEntrega.setVisible(false);
 		
 		// Paineis do VoluntárioPF
 		pnVoluntarioPF.setVisible(false);
-		pnVolPFMain.setVisible(false);
+		pnVolMain.setVisible(false);
 		pnTbEvento.setVisible(false);
-		pnDoarPF.setVisible(false);
+		pnDoar.setVisible(false);
 		pnVolPFEventos.setVisible(false);
+		pnMinhasDoacoes.setVisible(false); 
+		
+		// Paineis do VoluntárioPJ
+		pnVoluntarioPJ.setVisible(false);
+		pnEventosPatrocinados.setVisible(false);
+		pnPatrocinarEvento.setVisible(false);
+		
+		// Paineis Gestor
+		pnGestor.setVisible(false);
+		pnGestorInicio.setVisible(false);
+		pnCadastrarFunc.setVisible(false);
+		pnAnalisarDespesas.setVisible(false);
+		pnAnalisarReceitas.setVisible(false);
+		pnRelatorioFinanc.setVisible(false);
 	}
 	
 	public void enableFuncionario(){
@@ -90,9 +121,21 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
 	}
 	
 	public void enableVoluntarioPF(){
-		pnVolPFMain.setVisible(true); // Paginá principal Funcionário
+		pnVolMain.setVisible(true); // Paginá principal Funcionário
 		pnVoluntarioPF.setVisible(true); // Menu Funcionário
 		taInfoVoluntarioPF.setText(listaVoluntarios.get(userID).toString());
+	}
+	
+	public void enableVoluntarioPJ(){
+		pnVolMain.setVisible(true); // Paginá principal Funcionário
+		pnVoluntarioPJ.setVisible(true); // Menu Funcionário
+		taInfoVoluntarioPF.setText(listaVoluntarios.get(userID).toString());
+	}
+	
+	public void enableGestor(){
+		pnGestorInicio.setVisible(true);
+		pnGestor.setVisible(true);
+		taInfoGestor.setText(listaGestores.get(userID).toString());
 	}
 	
 	public String gerarMeusEventosPF(){
@@ -107,6 +150,16 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
 		return eventos;
 	}
 	
+	public String gerarMeusEventosPJ(){
+		String eventos = "";
+		for(int i = 0; i < listaEventos.size(); i++){
+			if(listaEventos.get(i).verificarPatrocinadorRepetido(listaVoluntarios.get(userID))){
+				eventos += String.format("%s\nPatrocinadores:\n%s\n\n", listaEventos.get(i).toString(), listaEventos.get(i).infoPatrocinadores());
+			}
+		}
+		return eventos;
+	}
+	
 	public String gerarMeusEventosFunc(){
 		String eventos = "";
 		for(int i = 0; i < listaEventos.size(); i++){
@@ -116,6 +169,44 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
 		}
 		return eventos;
 	}
+	
+	public String gerarMinhasDoacoesPendentes(){
+		String doacoesPendentes = "";
+		for(int i = 0; i < listaDoacoesPendentes.size(); i++){
+			if(listaDoacoesPendentes.get(i).getVol() == listaVoluntarios.get(userID)){
+				doacoesPendentes += String.format("%n%s%n", listaDoacoesPendentes.get(i).toString());
+			}
+		}
+		return doacoesPendentes;
+	}
+	
+	public String gerarMinhasDoacoes(){
+		String doacoes = "";
+		for(int i = 0; i < listaDoacoes.size(); i++){
+			if(listaDoacoes.get(i).getVol() == listaVoluntarios.get(userID)){
+				doacoes += String.format("%n%s%n", listaDoacoes.get(i).toString());
+			}
+		}
+		return doacoes;
+	}
+	
+	public String gerarDoacoes(){
+		String doacoes = "";
+		for(int i = 0; i < listaDoacoes.size(); i++){
+			doacoes += String.format("%n%s%n", listaDoacoes.get(i).toString());
+		}
+		return doacoes;
+	}
+	
+	public String gerarEventos(){
+		String eventos = "";
+		for(int i = 0; i < listaEventos.size(); i++){
+			eventos += String.format("%s\nTrabalhos:\n%s\nPatrocinadores:\n%s", listaEventos.get(i).toString(), listaEventos.get(i).infoTrabalhos(), listaEventos.get(i).infoPatrocinadores());
+		}
+		return eventos;
+	}
+	
+	
 	
 	public void clearCdVolPF(){
 		tfVolPFNome.setText("");
@@ -171,6 +262,52 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
 		jLItens.setModel(converterItensLista());
 	}
 	
+	public void clearGestor(){
+		tfGestorBairro.setText("");
+		tfGestorCidade.setText("");
+		tfGestorComplemento.setText("");
+		tfGestorNome.setText("");
+		tfGestorNumero.setText("");
+		tfGestorRua.setText("");
+		tfGestorSenha.setText("");
+		tfGestorUsuario.setText("");
+		ftfGestorCEP.setText("");
+		ftfGestorCPF.setText("");
+		ftfGestorTelefone.setText("");
+			
+	}
+	
+	public String gerarInfoDoacoes(){
+		String total = "";
+		for(int i = 0; i<listaDoacoes.size(); i++){
+			total += listaDoacoes.get(i).toString();
+		}
+		return total;
+	}
+	
+	public double gerarInfoDinheiro(){
+		double total = 0;
+		for(int i = 0; i<listaDoacoes.size(); i++){
+			total += listaDoacoes.get(i).getDoacaoDinheiro();
+		}
+		return total;
+	}
+	
+	public String gerarInfoEventos(){
+		String total = "";
+		for(int i = 0; i<listaEventos.size(); i++){
+			total += listaEventos.get(i).toString();
+		}
+		return total;
+	}
+	
+	public double gerarTotalDespesas(){
+		double total = 0;
+		for(int i = 0; i<listaEventos.size(); i++){
+			total += listaEventos.get(i).gerarTotalGastos();
+		}
+		return total;
+	}
 	
 	public double calcularTotalGastosTemp(){
 		double totalgastos = 0;
@@ -235,6 +372,22 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
 		}
 		return listModel;
 	}
+	
+	public DefaultListModel<String> converterDoacoesPendentes(){
+		DefaultListModel<String> listModel = new DefaultListModel<String>();
+		for(int i = 0; i<listaDoacoesPendentes.size(); i++){
+			listModel.addElement(listaDoacoesPendentes.get(i).toString());
+		}
+		return listModel;
+	}
+	
+	public DefaultListModel<String> converterDoacoes(){
+		DefaultListModel<String> listModel = new DefaultListModel<String>();
+		for(int i = 0; i<listaDoacoes.size(); i++){
+			listModel.addElement(String.format("Voluntário: %s, Entregue: %s", listaDoacoes.get(i).getVol().getNome(), listaDoacoes.get(i).infoEntregue()));
+		}
+		return listModel;
+	}
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -262,7 +415,6 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
         btAceitarDoacao = new keeptoo.KButton();
         btRemoverVoluntario = new keeptoo.KButton();
         btRelatorios = new keeptoo.KButton();
-        btImportarDados = new keeptoo.KButton();
         btFuncLogout1 = new keeptoo.KButton();
         btMeusEventosFunc = new keeptoo.KButton();
         pnVoluntarioPF = new keeptoo.KGradientPanel();
@@ -272,7 +424,23 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
         btDoarPF = new keeptoo.KButton();
         btVolPFLogout = new keeptoo.KButton();
         btMeusEventosPF = new keeptoo.KButton();
-        btDoarPF1 = new keeptoo.KButton();
+        btMinhasDoacoes = new keeptoo.KButton();
+        pnVoluntarioPJ = new keeptoo.KGradientPanel();
+        lbTituloVolPF1 = new javax.swing.JLabel();
+        btVolPJInicio = new keeptoo.KButton();
+        btPatrocinarEvento = new keeptoo.KButton();
+        btDoarPJ = new keeptoo.KButton();
+        btVolPJLogout = new keeptoo.KButton();
+        btMeusEventosPJ = new keeptoo.KButton();
+        btMinhasDoacoesPJ = new keeptoo.KButton();
+        pnGestor = new keeptoo.KGradientPanel();
+        lbTituloVolPF2 = new javax.swing.JLabel();
+        btGestorInicio = new keeptoo.KButton();
+        btGestorAnalisarReceitas = new keeptoo.KButton();
+        btGestorAnalisarDespesas = new keeptoo.KButton();
+        btGestorDesconectar = new keeptoo.KButton();
+        btGestorCadastrar = new keeptoo.KButton();
+        btGestorRelatorio = new keeptoo.KButton();
         ldFuncionario = new javax.swing.JLayeredPane();
         pnFuncMain = new javax.swing.JPanel();
         pnMainTitle = new keeptoo.KGradientPanel();
@@ -420,8 +588,25 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
         btCadastrarEvento = new keeptoo.KButton();
         lbTotalGastos = new javax.swing.JLabel();
         jLabel95 = new javax.swing.JLabel();
+        pnAceitarDoacao = new javax.swing.JPanel();
+        pnMainTitle12 = new keeptoo.KGradientPanel();
+        jLabel68 = new javax.swing.JLabel();
+        jScrollPane17 = new javax.swing.JScrollPane();
+        jLDoacoesPendentes = new javax.swing.JList<>();
+        jLabel80 = new javax.swing.JLabel();
+        btInfoDoacao = new keeptoo.KButton();
+        btAceitarDoacaoSelecionada = new keeptoo.KButton();
+        btRecusarDoacao = new keeptoo.KButton();
+        pnGerenciarEntrega = new javax.swing.JPanel();
+        pnMainTitle15 = new keeptoo.KGradientPanel();
+        jLabel88 = new javax.swing.JLabel();
+        jScrollPane21 = new javax.swing.JScrollPane();
+        jLDoacoes = new javax.swing.JList<>();
+        jLabel90 = new javax.swing.JLabel();
+        btInfoDoacao1 = new keeptoo.KButton();
+        btConfirmarEntrega = new keeptoo.KButton();
         ldVoluntarioPF = new javax.swing.JLayeredPane();
-        pnVolPFMain = new javax.swing.JPanel();
+        pnVolMain = new javax.swing.JPanel();
         pnMainTitle4 = new keeptoo.KGradientPanel();
         jLabel53 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
@@ -445,7 +630,7 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
         jPanel7 = new javax.swing.JPanel();
         jScrollPane11 = new javax.swing.JScrollPane();
         taEventosVolPF = new javax.swing.JTextArea();
-        pnDoarPF = new javax.swing.JPanel();
+        pnDoar = new javax.swing.JPanel();
         pnMainTitle8 = new keeptoo.KGradientPanel();
         jLabel40 = new javax.swing.JLabel();
         jPanel8 = new javax.swing.JPanel();
@@ -467,6 +652,99 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
         btRemoveItem = new keeptoo.KButton();
         tfItemQuantidade = new javax.swing.JTextField();
         btFinalizarDoacaoPF = new keeptoo.KButton();
+        pnMinhasDoacoes = new javax.swing.JPanel();
+        pnMainTitle7 = new keeptoo.KGradientPanel();
+        jLabel63 = new javax.swing.JLabel();
+        jPanel11 = new javax.swing.JPanel();
+        jLabel64 = new javax.swing.JLabel();
+        jLabel65 = new javax.swing.JLabel();
+        jScrollPane14 = new javax.swing.JScrollPane();
+        taDoacoesPendentes = new javax.swing.JTextArea();
+        jScrollPane15 = new javax.swing.JScrollPane();
+        taDoacoesAceitas = new javax.swing.JTextArea();
+        ldVoluntarioPJ = new javax.swing.JLayeredPane();
+        pnPatrocinarEvento = new javax.swing.JPanel();
+        pnPatrocinarTitle = new keeptoo.KGradientPanel();
+        jLabel67 = new javax.swing.JLabel();
+        jPanel13 = new javax.swing.JPanel();
+        btPatrocinarEventoSelecionado = new keeptoo.KButton();
+        jScrollPane18 = new javax.swing.JScrollPane();
+        jLEventosPatrocinar = new javax.swing.JList<>();
+        jLabel69 = new javax.swing.JLabel();
+        btVerInfoEvento = new keeptoo.KButton();
+        pnEventosPatrocinados = new javax.swing.JPanel();
+        pnMainTitle10 = new keeptoo.KGradientPanel();
+        jLabel70 = new javax.swing.JLabel();
+        jPanel14 = new javax.swing.JPanel();
+        jScrollPane19 = new javax.swing.JScrollPane();
+        taEventosPatrocinados = new javax.swing.JTextArea();
+        ldGestor = new javax.swing.JLayeredPane();
+        pnGestorInicio = new javax.swing.JPanel();
+        pnMainTitle9 = new keeptoo.KGradientPanel();
+        jLabel66 = new javax.swing.JLabel();
+        jPanel12 = new javax.swing.JPanel();
+        jScrollPane16 = new javax.swing.JScrollPane();
+        taInfoGestor = new javax.swing.JTextArea();
+        pnAnalisarReceitas = new javax.swing.JPanel();
+        pnMainTitle11 = new keeptoo.KGradientPanel();
+        jLabel73 = new javax.swing.JLabel();
+        jPanel16 = new javax.swing.JPanel();
+        jScrollPane22 = new javax.swing.JScrollPane();
+        taReceitas = new javax.swing.JTextArea();
+        lbTotalReceitas = new javax.swing.JLabel();
+        pnRelatorioFinanc = new javax.swing.JPanel();
+        pnMainTitle13 = new keeptoo.KGradientPanel();
+        jLabel85 = new javax.swing.JLabel();
+        jPanel18 = new javax.swing.JPanel();
+        jLabel86 = new javax.swing.JLabel();
+        jLabel87 = new javax.swing.JLabel();
+        jScrollPane24 = new javax.swing.JScrollPane();
+        taDoacoesPendentes1 = new javax.swing.JTextArea();
+        jScrollPane25 = new javax.swing.JScrollPane();
+        taDoacoesAceitas1 = new javax.swing.JTextArea();
+        pnAnalisarDespesas = new javax.swing.JPanel();
+        pnMainTitle14 = new keeptoo.KGradientPanel();
+        jLabel89 = new javax.swing.JLabel();
+        jPanel19 = new javax.swing.JPanel();
+        jScrollPane26 = new javax.swing.JScrollPane();
+        taDespesas = new javax.swing.JTextArea();
+        lbTotalDespesas = new javax.swing.JLabel();
+        pnCadastrarFunc = new javax.swing.JPanel();
+        pnCdVolTitle4 = new keeptoo.KGradientPanel();
+        jLabel71 = new javax.swing.JLabel();
+        pnDados2 = new javax.swing.JPanel();
+        ftfGestorTelefone = new javax.swing.JFormattedTextField();
+        jLabel72 = new javax.swing.JLabel();
+        tfGestorNome = new javax.swing.JTextField();
+        jLabel74 = new javax.swing.JLabel();
+        jLabel75 = new javax.swing.JLabel();
+        ftfGestorCPF = new javax.swing.JFormattedTextField();
+        jLabel79 = new javax.swing.JLabel();
+        cbGestorSexo = new javax.swing.JComboBox<>();
+        btCadastrarVolPF1 = new keeptoo.KButton();
+        pnEndereco2 = new javax.swing.JPanel();
+        jLabel81 = new javax.swing.JLabel();
+        tfGestorRua = new javax.swing.JTextField();
+        jLabel82 = new javax.swing.JLabel();
+        tfGestorNumero = new javax.swing.JTextField();
+        jLabel83 = new javax.swing.JLabel();
+        tfGestorComplemento = new javax.swing.JTextField();
+        jLabel84 = new javax.swing.JLabel();
+        tfGestorBairro = new javax.swing.JTextField();
+        tfGestorCidade = new javax.swing.JTextField();
+        jLabel96 = new javax.swing.JLabel();
+        jLabel97 = new javax.swing.JLabel();
+        jLabel98 = new javax.swing.JLabel();
+        cbGestorUF = new javax.swing.JComboBox<>();
+        ftfGestorCEP = new javax.swing.JFormattedTextField();
+        jLabel99 = new javax.swing.JLabel();
+        jLabel100 = new javax.swing.JLabel();
+        jPanel17 = new javax.swing.JPanel();
+        tfGestorUsuario = new javax.swing.JTextField();
+        tfGestorSenha = new javax.swing.JTextField();
+        jLabel101 = new javax.swing.JLabel();
+        jLabel102 = new javax.swing.JLabel();
+        jLabel103 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Morais Voluntariado");
@@ -705,25 +983,6 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
         });
         pnFuncionario.add(btRelatorios, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 360, 160, 40));
 
-        btImportarDados.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/import.png"))); // NOI18N
-        btImportarDados.setText("Importar Dados");
-        btImportarDados.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        btImportarDados.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        btImportarDados.setIconTextGap(0);
-        btImportarDados.setkBorderRadius(0);
-        btImportarDados.setkEndColor(new java.awt.Color(233, 193, 253));
-        btImportarDados.setkHoverEndColor(new java.awt.Color(236, 174, 243));
-        btImportarDados.setkHoverForeGround(new java.awt.Color(153, 0, 255));
-        btImportarDados.setkHoverStartColor(new java.awt.Color(221, 143, 253));
-        btImportarDados.setkPressedColor(new java.awt.Color(250, 209, 254));
-        btImportarDados.setkStartColor(new java.awt.Color(199, 96, 230));
-        btImportarDados.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btImportarDadosActionPerformed(evt);
-            }
-        });
-        pnFuncionario.add(btImportarDados, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 400, 160, 40));
-
         btFuncLogout1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/exit.png"))); // NOI18N
         btFuncLogout1.setText("Desconectar");
         btFuncLogout1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
@@ -741,7 +1000,7 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
                 btFuncLogout1ActionPerformed(evt);
             }
         });
-        pnFuncionario.add(btFuncLogout1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 440, 160, 40));
+        pnFuncionario.add(btFuncLogout1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 400, 160, 40));
 
         btMeusEventosFunc.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/eventicon.png"))); // NOI18N
         btMeusEventosFunc.setText("Meus Eventos");
@@ -870,26 +1129,280 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
         });
         pnVoluntarioPF.add(btMeusEventosPF, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 80, 160, 40));
 
-        btDoarPF1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/donates.png"))); // NOI18N
-        btDoarPF1.setText("Minhas doações");
-        btDoarPF1.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
-        btDoarPF1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        btDoarPF1.setIconTextGap(0);
-        btDoarPF1.setkBorderRadius(0);
-        btDoarPF1.setkEndColor(new java.awt.Color(233, 193, 253));
-        btDoarPF1.setkHoverEndColor(new java.awt.Color(236, 174, 243));
-        btDoarPF1.setkHoverForeGround(new java.awt.Color(153, 0, 255));
-        btDoarPF1.setkHoverStartColor(new java.awt.Color(221, 143, 253));
-        btDoarPF1.setkPressedColor(new java.awt.Color(250, 209, 254));
-        btDoarPF1.setkStartColor(new java.awt.Color(199, 96, 230));
-        btDoarPF1.addActionListener(new java.awt.event.ActionListener() {
+        btMinhasDoacoes.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/donates.png"))); // NOI18N
+        btMinhasDoacoes.setText("Minhas doações");
+        btMinhasDoacoes.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btMinhasDoacoes.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btMinhasDoacoes.setIconTextGap(0);
+        btMinhasDoacoes.setkBorderRadius(0);
+        btMinhasDoacoes.setkEndColor(new java.awt.Color(233, 193, 253));
+        btMinhasDoacoes.setkHoverEndColor(new java.awt.Color(236, 174, 243));
+        btMinhasDoacoes.setkHoverForeGround(new java.awt.Color(153, 0, 255));
+        btMinhasDoacoes.setkHoverStartColor(new java.awt.Color(221, 143, 253));
+        btMinhasDoacoes.setkPressedColor(new java.awt.Color(250, 209, 254));
+        btMinhasDoacoes.setkStartColor(new java.awt.Color(199, 96, 230));
+        btMinhasDoacoes.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btDoarPF1ActionPerformed(evt);
+                btMinhasDoacoesActionPerformed(evt);
             }
         });
-        pnVoluntarioPF.add(btDoarPF1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 200, 160, 40));
+        pnVoluntarioPF.add(btMinhasDoacoes, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 200, 160, 40));
 
         ldMenus.add(pnVoluntarioPF, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
+
+        pnVoluntarioPJ.setkBorderRadius(0);
+        pnVoluntarioPJ.setkEndColor(new java.awt.Color(102, 0, 102));
+        pnVoluntarioPJ.setkStartColor(new java.awt.Color(51, 0, 102));
+        pnVoluntarioPJ.setPreferredSize(new java.awt.Dimension(160, 500));
+        pnVoluntarioPJ.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        lbTituloVolPF1.setFont(new java.awt.Font("Microsoft YaHei UI", 1, 14)); // NOI18N
+        lbTituloVolPF1.setForeground(new java.awt.Color(255, 255, 255));
+        lbTituloVolPF1.setText("Voluntário PJ");
+        pnVoluntarioPJ.add(lbTituloVolPF1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 10, 100, -1));
+
+        btVolPJInicio.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/home.png"))); // NOI18N
+        btVolPJInicio.setText("Início");
+        btVolPJInicio.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btVolPJInicio.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btVolPJInicio.setIconTextGap(0);
+        btVolPJInicio.setkBorderRadius(0);
+        btVolPJInicio.setkEndColor(new java.awt.Color(233, 193, 253));
+        btVolPJInicio.setkHoverEndColor(new java.awt.Color(236, 174, 243));
+        btVolPJInicio.setkHoverForeGround(new java.awt.Color(153, 0, 255));
+        btVolPJInicio.setkHoverStartColor(new java.awt.Color(221, 143, 253));
+        btVolPJInicio.setkPressedColor(new java.awt.Color(250, 209, 254));
+        btVolPJInicio.setkStartColor(new java.awt.Color(199, 96, 230));
+        btVolPJInicio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btVolPJInicioActionPerformed(evt);
+            }
+        });
+        pnVoluntarioPJ.add(btVolPJInicio, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 40, 160, 40));
+
+        btPatrocinarEvento.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/new work.png"))); // NOI18N
+        btPatrocinarEvento.setText("  Patrocinar Evento");
+        btPatrocinarEvento.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btPatrocinarEvento.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btPatrocinarEvento.setIconTextGap(0);
+        btPatrocinarEvento.setkBorderRadius(0);
+        btPatrocinarEvento.setkEndColor(new java.awt.Color(233, 193, 253));
+        btPatrocinarEvento.setkHoverEndColor(new java.awt.Color(236, 174, 243));
+        btPatrocinarEvento.setkHoverForeGround(new java.awt.Color(153, 0, 255));
+        btPatrocinarEvento.setkHoverStartColor(new java.awt.Color(221, 143, 253));
+        btPatrocinarEvento.setkPressedColor(new java.awt.Color(250, 209, 254));
+        btPatrocinarEvento.setkStartColor(new java.awt.Color(199, 96, 230));
+        btPatrocinarEvento.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btPatrocinarEventoActionPerformed(evt);
+            }
+        });
+        pnVoluntarioPJ.add(btPatrocinarEvento, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 120, 160, 40));
+
+        btDoarPJ.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/donate.png"))); // NOI18N
+        btDoarPJ.setText("Fazer doação");
+        btDoarPJ.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btDoarPJ.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btDoarPJ.setIconTextGap(0);
+        btDoarPJ.setkBorderRadius(0);
+        btDoarPJ.setkEndColor(new java.awt.Color(233, 193, 253));
+        btDoarPJ.setkHoverEndColor(new java.awt.Color(236, 174, 243));
+        btDoarPJ.setkHoverForeGround(new java.awt.Color(153, 0, 255));
+        btDoarPJ.setkHoverStartColor(new java.awt.Color(221, 143, 253));
+        btDoarPJ.setkPressedColor(new java.awt.Color(250, 209, 254));
+        btDoarPJ.setkStartColor(new java.awt.Color(199, 96, 230));
+        btDoarPJ.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btDoarPJActionPerformed(evt);
+            }
+        });
+        pnVoluntarioPJ.add(btDoarPJ, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 160, 160, 40));
+
+        btVolPJLogout.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/exit.png"))); // NOI18N
+        btVolPJLogout.setText("Desconectar");
+        btVolPJLogout.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btVolPJLogout.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btVolPJLogout.setIconTextGap(0);
+        btVolPJLogout.setkBorderRadius(0);
+        btVolPJLogout.setkEndColor(new java.awt.Color(233, 193, 253));
+        btVolPJLogout.setkHoverEndColor(new java.awt.Color(236, 174, 243));
+        btVolPJLogout.setkHoverForeGround(new java.awt.Color(153, 0, 255));
+        btVolPJLogout.setkHoverStartColor(new java.awt.Color(221, 143, 253));
+        btVolPJLogout.setkPressedColor(new java.awt.Color(250, 209, 254));
+        btVolPJLogout.setkStartColor(new java.awt.Color(199, 96, 230));
+        btVolPJLogout.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btVolPJLogoutActionPerformed(evt);
+            }
+        });
+        pnVoluntarioPJ.add(btVolPJLogout, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 240, 160, 40));
+
+        btMeusEventosPJ.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/eventicon.png"))); // NOI18N
+        btMeusEventosPJ.setText("Meus Eventos");
+        btMeusEventosPJ.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btMeusEventosPJ.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btMeusEventosPJ.setIconTextGap(0);
+        btMeusEventosPJ.setkBorderRadius(0);
+        btMeusEventosPJ.setkEndColor(new java.awt.Color(233, 193, 253));
+        btMeusEventosPJ.setkHoverEndColor(new java.awt.Color(236, 174, 243));
+        btMeusEventosPJ.setkHoverForeGround(new java.awt.Color(153, 0, 255));
+        btMeusEventosPJ.setkHoverStartColor(new java.awt.Color(221, 143, 253));
+        btMeusEventosPJ.setkPressedColor(new java.awt.Color(250, 209, 254));
+        btMeusEventosPJ.setkStartColor(new java.awt.Color(199, 96, 230));
+        btMeusEventosPJ.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btMeusEventosPJActionPerformed(evt);
+            }
+        });
+        pnVoluntarioPJ.add(btMeusEventosPJ, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 80, 160, 40));
+
+        btMinhasDoacoesPJ.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/donates.png"))); // NOI18N
+        btMinhasDoacoesPJ.setText("Minhas doações");
+        btMinhasDoacoesPJ.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btMinhasDoacoesPJ.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btMinhasDoacoesPJ.setIconTextGap(0);
+        btMinhasDoacoesPJ.setkBorderRadius(0);
+        btMinhasDoacoesPJ.setkEndColor(new java.awt.Color(233, 193, 253));
+        btMinhasDoacoesPJ.setkHoverEndColor(new java.awt.Color(236, 174, 243));
+        btMinhasDoacoesPJ.setkHoverForeGround(new java.awt.Color(153, 0, 255));
+        btMinhasDoacoesPJ.setkHoverStartColor(new java.awt.Color(221, 143, 253));
+        btMinhasDoacoesPJ.setkPressedColor(new java.awt.Color(250, 209, 254));
+        btMinhasDoacoesPJ.setkStartColor(new java.awt.Color(199, 96, 230));
+        btMinhasDoacoesPJ.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btMinhasDoacoesPJActionPerformed(evt);
+            }
+        });
+        pnVoluntarioPJ.add(btMinhasDoacoesPJ, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 200, 160, 40));
+
+        ldMenus.add(pnVoluntarioPJ, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
+
+        pnGestor.setkBorderRadius(0);
+        pnGestor.setkEndColor(new java.awt.Color(102, 0, 102));
+        pnGestor.setkStartColor(new java.awt.Color(51, 0, 102));
+        pnGestor.setPreferredSize(new java.awt.Dimension(160, 500));
+        pnGestor.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        lbTituloVolPF2.setFont(new java.awt.Font("Microsoft YaHei UI", 1, 14)); // NOI18N
+        lbTituloVolPF2.setForeground(new java.awt.Color(255, 255, 255));
+        lbTituloVolPF2.setText("Gestor");
+        pnGestor.add(lbTituloVolPF2, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 10, 60, -1));
+
+        btGestorInicio.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/home.png"))); // NOI18N
+        btGestorInicio.setText("Início");
+        btGestorInicio.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btGestorInicio.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btGestorInicio.setIconTextGap(0);
+        btGestorInicio.setkBorderRadius(0);
+        btGestorInicio.setkEndColor(new java.awt.Color(233, 193, 253));
+        btGestorInicio.setkHoverEndColor(new java.awt.Color(236, 174, 243));
+        btGestorInicio.setkHoverForeGround(new java.awt.Color(153, 0, 255));
+        btGestorInicio.setkHoverStartColor(new java.awt.Color(221, 143, 253));
+        btGestorInicio.setkPressedColor(new java.awt.Color(250, 209, 254));
+        btGestorInicio.setkStartColor(new java.awt.Color(199, 96, 230));
+        btGestorInicio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btGestorInicioActionPerformed(evt);
+            }
+        });
+        pnGestor.add(btGestorInicio, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 40, 160, 40));
+
+        btGestorAnalisarReceitas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/receitas.png"))); // NOI18N
+        btGestorAnalisarReceitas.setText("Analisar Receitas");
+        btGestorAnalisarReceitas.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btGestorAnalisarReceitas.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btGestorAnalisarReceitas.setIconTextGap(0);
+        btGestorAnalisarReceitas.setkBorderRadius(0);
+        btGestorAnalisarReceitas.setkEndColor(new java.awt.Color(233, 193, 253));
+        btGestorAnalisarReceitas.setkHoverEndColor(new java.awt.Color(236, 174, 243));
+        btGestorAnalisarReceitas.setkHoverForeGround(new java.awt.Color(153, 0, 255));
+        btGestorAnalisarReceitas.setkHoverStartColor(new java.awt.Color(221, 143, 253));
+        btGestorAnalisarReceitas.setkPressedColor(new java.awt.Color(250, 209, 254));
+        btGestorAnalisarReceitas.setkStartColor(new java.awt.Color(199, 96, 230));
+        btGestorAnalisarReceitas.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btGestorAnalisarReceitasActionPerformed(evt);
+            }
+        });
+        pnGestor.add(btGestorAnalisarReceitas, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 120, 160, 40));
+
+        btGestorAnalisarDespesas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/despesas.png"))); // NOI18N
+        btGestorAnalisarDespesas.setText("Analisar Despesas");
+        btGestorAnalisarDespesas.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btGestorAnalisarDespesas.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btGestorAnalisarDespesas.setIconTextGap(0);
+        btGestorAnalisarDespesas.setkBorderRadius(0);
+        btGestorAnalisarDespesas.setkEndColor(new java.awt.Color(233, 193, 253));
+        btGestorAnalisarDespesas.setkHoverEndColor(new java.awt.Color(236, 174, 243));
+        btGestorAnalisarDespesas.setkHoverForeGround(new java.awt.Color(153, 0, 255));
+        btGestorAnalisarDespesas.setkHoverStartColor(new java.awt.Color(221, 143, 253));
+        btGestorAnalisarDespesas.setkPressedColor(new java.awt.Color(250, 209, 254));
+        btGestorAnalisarDespesas.setkStartColor(new java.awt.Color(199, 96, 230));
+        btGestorAnalisarDespesas.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btGestorAnalisarDespesasActionPerformed(evt);
+            }
+        });
+        pnGestor.add(btGestorAnalisarDespesas, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 160, 160, 40));
+
+        btGestorDesconectar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/exit.png"))); // NOI18N
+        btGestorDesconectar.setText("Desconectar");
+        btGestorDesconectar.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btGestorDesconectar.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btGestorDesconectar.setIconTextGap(0);
+        btGestorDesconectar.setkBorderRadius(0);
+        btGestorDesconectar.setkEndColor(new java.awt.Color(233, 193, 253));
+        btGestorDesconectar.setkHoverEndColor(new java.awt.Color(236, 174, 243));
+        btGestorDesconectar.setkHoverForeGround(new java.awt.Color(153, 0, 255));
+        btGestorDesconectar.setkHoverStartColor(new java.awt.Color(221, 143, 253));
+        btGestorDesconectar.setkPressedColor(new java.awt.Color(250, 209, 254));
+        btGestorDesconectar.setkStartColor(new java.awt.Color(199, 96, 230));
+        btGestorDesconectar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btGestorDesconectarActionPerformed(evt);
+            }
+        });
+        pnGestor.add(btGestorDesconectar, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 240, 160, 40));
+
+        btGestorCadastrar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/cadastrarfunc.png"))); // NOI18N
+        btGestorCadastrar.setText("       Cadastrar Funcionário");
+        btGestorCadastrar.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btGestorCadastrar.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btGestorCadastrar.setIconTextGap(0);
+        btGestorCadastrar.setkBorderRadius(0);
+        btGestorCadastrar.setkEndColor(new java.awt.Color(233, 193, 253));
+        btGestorCadastrar.setkHoverEndColor(new java.awt.Color(236, 174, 243));
+        btGestorCadastrar.setkHoverForeGround(new java.awt.Color(153, 0, 255));
+        btGestorCadastrar.setkHoverStartColor(new java.awt.Color(221, 143, 253));
+        btGestorCadastrar.setkPressedColor(new java.awt.Color(250, 209, 254));
+        btGestorCadastrar.setkStartColor(new java.awt.Color(199, 96, 230));
+        btGestorCadastrar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btGestorCadastrarActionPerformed(evt);
+            }
+        });
+        pnGestor.add(btGestorCadastrar, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 80, 160, 40));
+
+        btGestorRelatorio.setIcon(new javax.swing.ImageIcon(getClass().getResource("/view/images/relatoriofinanc.png"))); // NOI18N
+        btGestorRelatorio.setText("       Relatório Financeiro");
+        btGestorRelatorio.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        btGestorRelatorio.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btGestorRelatorio.setIconTextGap(0);
+        btGestorRelatorio.setkBorderRadius(0);
+        btGestorRelatorio.setkEndColor(new java.awt.Color(233, 193, 253));
+        btGestorRelatorio.setkHoverEndColor(new java.awt.Color(236, 174, 243));
+        btGestorRelatorio.setkHoverForeGround(new java.awt.Color(153, 0, 255));
+        btGestorRelatorio.setkHoverStartColor(new java.awt.Color(221, 143, 253));
+        btGestorRelatorio.setkPressedColor(new java.awt.Color(250, 209, 254));
+        btGestorRelatorio.setkStartColor(new java.awt.Color(199, 96, 230));
+        btGestorRelatorio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btGestorRelatorioActionPerformed(evt);
+            }
+        });
+        pnGestor.add(btGestorRelatorio, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 200, 160, 40));
+
+        ldMenus.add(pnGestor, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
 
         getContentPane().add(ldMenus, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 160, 500));
 
@@ -2028,12 +2541,169 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
 
         ldFuncionario.add(pnCdEvento, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 500));
 
+        pnAceitarDoacao.setBackground(new java.awt.Color(204, 204, 204));
+        pnAceitarDoacao.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        pnMainTitle12.setkBorderRadius(0);
+        pnMainTitle12.setkEndColor(new java.awt.Color(204, 0, 204));
+        pnMainTitle12.setkStartColor(new java.awt.Color(51, 0, 102));
+        pnMainTitle12.setPreferredSize(new java.awt.Dimension(640, 40));
+
+        jLabel68.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel68.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel68.setText("Aceitar Doação");
+
+        javax.swing.GroupLayout pnMainTitle12Layout = new javax.swing.GroupLayout(pnMainTitle12);
+        pnMainTitle12.setLayout(pnMainTitle12Layout);
+        pnMainTitle12Layout.setHorizontalGroup(
+            pnMainTitle12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnMainTitle12Layout.createSequentialGroup()
+                .addGap(248, 248, 248)
+                .addComponent(jLabel68)
+                .addContainerGap(262, Short.MAX_VALUE))
+        );
+        pnMainTitle12Layout.setVerticalGroup(
+            pnMainTitle12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnMainTitle12Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel68)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        pnAceitarDoacao.add(pnMainTitle12, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 0, 640, 40));
+
+        jLDoacoesPendentes.setModel(converterVoluntariosLista());
+        jScrollPane17.setViewportView(jLDoacoesPendentes);
+
+        pnAceitarDoacao.add(jScrollPane17, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 80, 410, 240));
+
+        jLabel80.setText("Selecione a doação");
+        pnAceitarDoacao.add(jLabel80, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 60, -1, 20));
+
+        btInfoDoacao.setText("Ver informações");
+        btInfoDoacao.setFont(new java.awt.Font("Segoe UI", 0, 12)); // NOI18N
+        btInfoDoacao.setkEndColor(new java.awt.Color(233, 193, 253));
+        btInfoDoacao.setkHoverEndColor(new java.awt.Color(236, 174, 243));
+        btInfoDoacao.setkHoverForeGround(new java.awt.Color(153, 0, 255));
+        btInfoDoacao.setkHoverStartColor(new java.awt.Color(221, 143, 253));
+        btInfoDoacao.setkPressedColor(new java.awt.Color(250, 209, 254));
+        btInfoDoacao.setkStartColor(new java.awt.Color(199, 96, 230));
+        btInfoDoacao.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btInfoDoacaoActionPerformed(evt);
+            }
+        });
+        pnAceitarDoacao.add(btInfoDoacao, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 330, 100, 20));
+
+        btAceitarDoacaoSelecionada.setText("Aceitar");
+        btAceitarDoacaoSelecionada.setFont(new java.awt.Font("Segoe UI", 0, 12)); // NOI18N
+        btAceitarDoacaoSelecionada.setkEndColor(new java.awt.Color(233, 193, 253));
+        btAceitarDoacaoSelecionada.setkHoverEndColor(new java.awt.Color(236, 174, 243));
+        btAceitarDoacaoSelecionada.setkHoverForeGround(new java.awt.Color(153, 0, 255));
+        btAceitarDoacaoSelecionada.setkHoverStartColor(new java.awt.Color(221, 143, 253));
+        btAceitarDoacaoSelecionada.setkPressedColor(new java.awt.Color(250, 209, 254));
+        btAceitarDoacaoSelecionada.setkStartColor(new java.awt.Color(199, 96, 230));
+        btAceitarDoacaoSelecionada.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btAceitarDoacaoSelecionadaActionPerformed(evt);
+            }
+        });
+        pnAceitarDoacao.add(btAceitarDoacaoSelecionada, new org.netbeans.lib.awtextra.AbsoluteConstraints(600, 330, 90, 20));
+
+        btRecusarDoacao.setText("Recusar");
+        btRecusarDoacao.setFont(new java.awt.Font("Segoe UI", 0, 12)); // NOI18N
+        btRecusarDoacao.setkEndColor(new java.awt.Color(233, 193, 253));
+        btRecusarDoacao.setkHoverEndColor(new java.awt.Color(236, 174, 243));
+        btRecusarDoacao.setkHoverForeGround(new java.awt.Color(153, 0, 255));
+        btRecusarDoacao.setkHoverStartColor(new java.awt.Color(221, 143, 253));
+        btRecusarDoacao.setkPressedColor(new java.awt.Color(250, 209, 254));
+        btRecusarDoacao.setkStartColor(new java.awt.Color(199, 96, 230));
+        btRecusarDoacao.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btRecusarDoacaoActionPerformed(evt);
+            }
+        });
+        pnAceitarDoacao.add(btRecusarDoacao, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 330, 90, 20));
+
+        ldFuncionario.add(pnAceitarDoacao, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 500));
+
+        pnGerenciarEntrega.setBackground(new java.awt.Color(204, 204, 204));
+        pnGerenciarEntrega.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        pnMainTitle15.setkBorderRadius(0);
+        pnMainTitle15.setkEndColor(new java.awt.Color(204, 0, 204));
+        pnMainTitle15.setkStartColor(new java.awt.Color(51, 0, 102));
+        pnMainTitle15.setPreferredSize(new java.awt.Dimension(640, 40));
+
+        jLabel88.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel88.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel88.setText("Gerenciar Entrega");
+
+        javax.swing.GroupLayout pnMainTitle15Layout = new javax.swing.GroupLayout(pnMainTitle15);
+        pnMainTitle15.setLayout(pnMainTitle15Layout);
+        pnMainTitle15Layout.setHorizontalGroup(
+            pnMainTitle15Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnMainTitle15Layout.createSequentialGroup()
+                .addGap(248, 248, 248)
+                .addComponent(jLabel88)
+                .addContainerGap(239, Short.MAX_VALUE))
+        );
+        pnMainTitle15Layout.setVerticalGroup(
+            pnMainTitle15Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnMainTitle15Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel88)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        pnGerenciarEntrega.add(pnMainTitle15, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 0, 640, 40));
+
+        jLDoacoes.setModel(converterVoluntariosLista());
+        jScrollPane21.setViewportView(jLDoacoes);
+
+        pnGerenciarEntrega.add(jScrollPane21, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 70, 410, 330));
+
+        jLabel90.setText("Selecione a doação");
+        pnGerenciarEntrega.add(jLabel90, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 50, -1, 20));
+
+        btInfoDoacao1.setText("Ver informações");
+        btInfoDoacao1.setFont(new java.awt.Font("Segoe UI", 0, 12)); // NOI18N
+        btInfoDoacao1.setkEndColor(new java.awt.Color(233, 193, 253));
+        btInfoDoacao1.setkHoverEndColor(new java.awt.Color(236, 174, 243));
+        btInfoDoacao1.setkHoverForeGround(new java.awt.Color(153, 0, 255));
+        btInfoDoacao1.setkHoverStartColor(new java.awt.Color(221, 143, 253));
+        btInfoDoacao1.setkPressedColor(new java.awt.Color(250, 209, 254));
+        btInfoDoacao1.setkStartColor(new java.awt.Color(199, 96, 230));
+        btInfoDoacao1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btInfoDoacao1ActionPerformed(evt);
+            }
+        });
+        pnGerenciarEntrega.add(btInfoDoacao1, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 410, 100, 20));
+
+        btConfirmarEntrega.setText("Confirmar Entrega");
+        btConfirmarEntrega.setFont(new java.awt.Font("Segoe UI", 0, 12)); // NOI18N
+        btConfirmarEntrega.setkEndColor(new java.awt.Color(233, 193, 253));
+        btConfirmarEntrega.setkHoverEndColor(new java.awt.Color(236, 174, 243));
+        btConfirmarEntrega.setkHoverForeGround(new java.awt.Color(153, 0, 255));
+        btConfirmarEntrega.setkHoverStartColor(new java.awt.Color(221, 143, 253));
+        btConfirmarEntrega.setkPressedColor(new java.awt.Color(250, 209, 254));
+        btConfirmarEntrega.setkStartColor(new java.awt.Color(199, 96, 230));
+        btConfirmarEntrega.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btConfirmarEntregaActionPerformed(evt);
+            }
+        });
+        pnGerenciarEntrega.add(btConfirmarEntrega, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 410, 120, 20));
+
+        ldFuncionario.add(pnGerenciarEntrega, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 500));
+
         getContentPane().add(ldFuncionario, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 500));
 
         ldVoluntarioPF.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        pnVolPFMain.setBackground(new java.awt.Color(204, 204, 204));
-        pnVolPFMain.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        pnVolMain.setBackground(new java.awt.Color(204, 204, 204));
+        pnVolMain.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         pnMainTitle4.setkBorderRadius(0);
         pnMainTitle4.setkEndColor(new java.awt.Color(204, 0, 204));
@@ -2061,7 +2731,7 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        pnVolPFMain.add(pnMainTitle4, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 0, 640, 40));
+        pnVolMain.add(pnMainTitle4, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 0, 640, 40));
 
         jPanel2.setBackground(new java.awt.Color(204, 204, 204));
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Seus dados", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 11))); // NOI18N
@@ -2087,9 +2757,9 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
                 .addGap(0, 214, Short.MAX_VALUE))
         );
 
-        pnVolPFMain.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 50, 620, 440));
+        pnVolMain.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 50, 620, 440));
 
-        ldVoluntarioPF.add(pnVolPFMain, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 500));
+        ldVoluntarioPF.add(pnVolMain, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 500));
 
         pnTbEvento.setBackground(new java.awt.Color(204, 204, 204));
         pnTbEvento.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -2272,8 +2942,8 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
 
         ldVoluntarioPF.add(pnVolPFEventos, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 500));
 
-        pnDoarPF.setBackground(new java.awt.Color(204, 204, 204));
-        pnDoarPF.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        pnDoar.setBackground(new java.awt.Color(204, 204, 204));
+        pnDoar.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         pnMainTitle8.setkBorderRadius(0);
         pnMainTitle8.setkEndColor(new java.awt.Color(204, 0, 204));
@@ -2301,7 +2971,7 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        pnDoarPF.add(pnMainTitle8, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 0, 640, 40));
+        pnDoar.add(pnMainTitle8, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 0, 640, 40));
 
         jPanel8.setBackground(new java.awt.Color(204, 204, 204));
         jPanel8.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED, null, null, null, new java.awt.Color(102, 0, 102)));
@@ -2364,18 +3034,18 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
                 .addContainerGap(49, Short.MAX_VALUE))
         );
 
-        pnDoarPF.add(jPanel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 60, 410, 140));
+        pnDoar.add(jPanel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 60, 410, 140));
 
         jLabel44.setText("Dados");
-        pnDoarPF.add(jLabel44, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 44, -1, 20));
+        pnDoar.add(jLabel44, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 44, -1, 20));
 
         jLItens.setModel(converterFuncionariosLista());
         jScrollPane5.setViewportView(jLItens);
 
-        pnDoarPF.add(jScrollPane5, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 230, 410, 110));
+        pnDoar.add(jScrollPane5, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 230, 410, 110));
 
         jLabel48.setText("Itens");
-        pnDoarPF.add(jLabel48, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 210, -1, 20));
+        pnDoar.add(jLabel48, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 210, -1, 20));
 
         btAddItem.setText("Adicionar");
         btAddItem.setFont(new java.awt.Font("Segoe UI", 0, 12)); // NOI18N
@@ -2390,14 +3060,14 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
                 btAddItemActionPerformed(evt);
             }
         });
-        pnDoarPF.add(btAddItem, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 350, 60, 20));
-        pnDoarPF.add(tfNomeItem, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 350, 130, -1));
+        pnDoar.add(btAddItem, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 350, 60, 20));
+        pnDoar.add(tfNomeItem, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 350, 130, -1));
 
         jLabel77.setText("Nome");
-        pnDoarPF.add(jLabel77, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 350, 40, 20));
+        pnDoar.add(jLabel77, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 350, 40, 20));
 
         jLabel78.setText("Quantidade");
-        pnDoarPF.add(jLabel78, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 350, 70, 20));
+        pnDoar.add(jLabel78, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 350, 70, 20));
 
         btRemoveItem.setText("Remover item");
         btRemoveItem.setFont(new java.awt.Font("Segoe UI", 0, 12)); // NOI18N
@@ -2412,8 +3082,8 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
                 btRemoveItemActionPerformed(evt);
             }
         });
-        pnDoarPF.add(btRemoveItem, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 230, 80, 20));
-        pnDoarPF.add(tfItemQuantidade, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 350, 90, -1));
+        pnDoar.add(btRemoveItem, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 230, 80, 20));
+        pnDoar.add(tfItemQuantidade, new org.netbeans.lib.awtextra.AbsoluteConstraints(530, 350, 90, -1));
 
         btFinalizarDoacaoPF.setText("Finalizar Doação");
         btFinalizarDoacaoPF.setFont(new java.awt.Font("Segoe UI", 0, 12)); // NOI18N
@@ -2428,11 +3098,819 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
                 btFinalizarDoacaoPFActionPerformed(evt);
             }
         });
-        pnDoarPF.add(btFinalizarDoacaoPF, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 380, 100, 50));
+        pnDoar.add(btFinalizarDoacaoPF, new org.netbeans.lib.awtextra.AbsoluteConstraints(590, 380, 100, 50));
 
-        ldVoluntarioPF.add(pnDoarPF, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 500));
+        ldVoluntarioPF.add(pnDoar, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 500));
+
+        pnMinhasDoacoes.setBackground(new java.awt.Color(204, 204, 204));
+        pnMinhasDoacoes.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        pnMainTitle7.setkBorderRadius(0);
+        pnMainTitle7.setkEndColor(new java.awt.Color(204, 0, 204));
+        pnMainTitle7.setkStartColor(new java.awt.Color(51, 0, 102));
+        pnMainTitle7.setPreferredSize(new java.awt.Dimension(640, 40));
+
+        jLabel63.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel63.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel63.setText("Minhas Doações");
+
+        javax.swing.GroupLayout pnMainTitle7Layout = new javax.swing.GroupLayout(pnMainTitle7);
+        pnMainTitle7.setLayout(pnMainTitle7Layout);
+        pnMainTitle7Layout.setHorizontalGroup(
+            pnMainTitle7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnMainTitle7Layout.createSequentialGroup()
+                .addGap(248, 248, 248)
+                .addComponent(jLabel63)
+                .addContainerGap(253, Short.MAX_VALUE))
+        );
+        pnMainTitle7Layout.setVerticalGroup(
+            pnMainTitle7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnMainTitle7Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel63)
+                .addContainerGap())
+        );
+
+        pnMinhasDoacoes.add(pnMainTitle7, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 0, 640, 40));
+
+        jPanel11.setBackground(new java.awt.Color(204, 204, 204));
+        jPanel11.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED, null, null, null, new java.awt.Color(102, 0, 102)));
+
+        jLabel64.setText("Doações pendentes");
+
+        jLabel65.setText("Doações aceitas");
+
+        taDoacoesPendentes.setEditable(false);
+        taDoacoesPendentes.setColumns(20);
+        taDoacoesPendentes.setRows(5);
+        jScrollPane14.setViewportView(taDoacoesPendentes);
+
+        taDoacoesAceitas.setEditable(false);
+        taDoacoesAceitas.setColumns(20);
+        taDoacoesAceitas.setRows(5);
+        jScrollPane15.setViewportView(taDoacoesAceitas);
+
+        javax.swing.GroupLayout jPanel11Layout = new javax.swing.GroupLayout(jPanel11);
+        jPanel11.setLayout(jPanel11Layout);
+        jPanel11Layout.setHorizontalGroup(
+            jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel11Layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jLabel64)
+                .addGap(257, 257, 257))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel11Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane15)
+                    .addComponent(jScrollPane14))
+                .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel11Layout.createSequentialGroup()
+                .addContainerGap(269, Short.MAX_VALUE)
+                .addComponent(jLabel65)
+                .addGap(267, 267, 267))
+        );
+        jPanel11Layout.setVerticalGroup(
+            jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel11Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel64)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane14, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel65)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane15, javax.swing.GroupLayout.DEFAULT_SIZE, 191, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        pnMinhasDoacoes.add(jPanel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 50, 620, 430));
+
+        ldVoluntarioPF.add(pnMinhasDoacoes, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 500));
 
         getContentPane().add(ldVoluntarioPF, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 500));
+
+        ldVoluntarioPJ.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        pnPatrocinarEvento.setBackground(new java.awt.Color(204, 204, 204));
+        pnPatrocinarEvento.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        pnPatrocinarTitle.setkBorderRadius(0);
+        pnPatrocinarTitle.setkEndColor(new java.awt.Color(204, 0, 204));
+        pnPatrocinarTitle.setkStartColor(new java.awt.Color(51, 0, 102));
+        pnPatrocinarTitle.setPreferredSize(new java.awt.Dimension(640, 40));
+
+        jLabel67.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel67.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel67.setText("Patrocinar Evento");
+
+        javax.swing.GroupLayout pnPatrocinarTitleLayout = new javax.swing.GroupLayout(pnPatrocinarTitle);
+        pnPatrocinarTitle.setLayout(pnPatrocinarTitleLayout);
+        pnPatrocinarTitleLayout.setHorizontalGroup(
+            pnPatrocinarTitleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnPatrocinarTitleLayout.createSequentialGroup()
+                .addContainerGap(251, Short.MAX_VALUE)
+                .addComponent(jLabel67)
+                .addGap(237, 237, 237))
+        );
+        pnPatrocinarTitleLayout.setVerticalGroup(
+            pnPatrocinarTitleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnPatrocinarTitleLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel67)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        pnPatrocinarEvento.add(pnPatrocinarTitle, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 0, -1, -1));
+
+        jPanel13.setBackground(new java.awt.Color(204, 204, 204));
+        jPanel13.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED, null, null, null, new java.awt.Color(102, 0, 102)));
+
+        btPatrocinarEventoSelecionado.setText("Patrocinar evento");
+        btPatrocinarEventoSelecionado.setFont(new java.awt.Font("Segoe UI", 0, 12)); // NOI18N
+        btPatrocinarEventoSelecionado.setkEndColor(new java.awt.Color(233, 193, 253));
+        btPatrocinarEventoSelecionado.setkHoverEndColor(new java.awt.Color(236, 174, 243));
+        btPatrocinarEventoSelecionado.setkHoverForeGround(new java.awt.Color(153, 0, 255));
+        btPatrocinarEventoSelecionado.setkHoverStartColor(new java.awt.Color(221, 143, 253));
+        btPatrocinarEventoSelecionado.setkPressedColor(new java.awt.Color(250, 209, 254));
+        btPatrocinarEventoSelecionado.setkStartColor(new java.awt.Color(199, 96, 230));
+        btPatrocinarEventoSelecionado.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btPatrocinarEventoSelecionadoActionPerformed(evt);
+            }
+        });
+
+        jLEventosPatrocinar.setModel(converterEventosLista());
+        jScrollPane18.setViewportView(jLEventosPatrocinar);
+
+        jLabel69.setText("Selecionar Evento");
+
+        btVerInfoEvento.setText("Ver informações");
+        btVerInfoEvento.setFont(new java.awt.Font("Segoe UI", 0, 12)); // NOI18N
+        btVerInfoEvento.setkEndColor(new java.awt.Color(233, 193, 253));
+        btVerInfoEvento.setkHoverEndColor(new java.awt.Color(236, 174, 243));
+        btVerInfoEvento.setkHoverForeGround(new java.awt.Color(153, 0, 255));
+        btVerInfoEvento.setkHoverStartColor(new java.awt.Color(221, 143, 253));
+        btVerInfoEvento.setkPressedColor(new java.awt.Color(250, 209, 254));
+        btVerInfoEvento.setkStartColor(new java.awt.Color(199, 96, 230));
+        btVerInfoEvento.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btVerInfoEventoActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel13Layout = new javax.swing.GroupLayout(jPanel13);
+        jPanel13.setLayout(jPanel13Layout);
+        jPanel13Layout.setHorizontalGroup(
+            jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel13Layout.createSequentialGroup()
+                .addGroup(jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel13Layout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel69)
+                        .addGap(244, 244, 244))
+                    .addGroup(jPanel13Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jScrollPane18))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel13Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(btVerInfoEvento, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btPatrocinarEventoSelecionado, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
+        );
+        jPanel13Layout.setVerticalGroup(
+            jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel13Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel69)
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane18, javax.swing.GroupLayout.PREFERRED_SIZE, 280, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btPatrocinarEventoSelecionado, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btVerInfoEvento, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(60, Short.MAX_VALUE))
+        );
+
+        pnPatrocinarEvento.add(jPanel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 50, 620, 430));
+
+        ldVoluntarioPJ.add(pnPatrocinarEvento, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 500));
+
+        pnEventosPatrocinados.setBackground(new java.awt.Color(204, 204, 204));
+        pnEventosPatrocinados.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        pnMainTitle10.setkBorderRadius(0);
+        pnMainTitle10.setkEndColor(new java.awt.Color(204, 0, 204));
+        pnMainTitle10.setkStartColor(new java.awt.Color(51, 0, 102));
+        pnMainTitle10.setPreferredSize(new java.awt.Dimension(640, 40));
+
+        jLabel70.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel70.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel70.setText("Meus Eventos");
+
+        javax.swing.GroupLayout pnMainTitle10Layout = new javax.swing.GroupLayout(pnMainTitle10);
+        pnMainTitle10.setLayout(pnMainTitle10Layout);
+        pnMainTitle10Layout.setHorizontalGroup(
+            pnMainTitle10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnMainTitle10Layout.createSequentialGroup()
+                .addContainerGap(263, Short.MAX_VALUE)
+                .addComponent(jLabel70)
+                .addGap(259, 259, 259))
+        );
+        pnMainTitle10Layout.setVerticalGroup(
+            pnMainTitle10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnMainTitle10Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel70)
+                .addContainerGap())
+        );
+
+        pnEventosPatrocinados.add(pnMainTitle10, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 0, 640, 40));
+
+        jPanel14.setBackground(new java.awt.Color(204, 204, 204));
+        jPanel14.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED, null, null, null, new java.awt.Color(102, 0, 102)));
+
+        taEventosPatrocinados.setEditable(false);
+        taEventosPatrocinados.setColumns(20);
+        taEventosPatrocinados.setRows(5);
+        jScrollPane19.setViewportView(taEventosPatrocinados);
+
+        javax.swing.GroupLayout jPanel14Layout = new javax.swing.GroupLayout(jPanel14);
+        jPanel14.setLayout(jPanel14Layout);
+        jPanel14Layout.setHorizontalGroup(
+            jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel14Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane19, javax.swing.GroupLayout.DEFAULT_SIZE, 594, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanel14Layout.setVerticalGroup(
+            jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel14Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane19, javax.swing.GroupLayout.DEFAULT_SIZE, 402, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        pnEventosPatrocinados.add(jPanel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 50, 620, 430));
+
+        ldVoluntarioPJ.add(pnEventosPatrocinados, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 500));
+
+        getContentPane().add(ldVoluntarioPJ, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 500));
+
+        ldGestor.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        pnGestorInicio.setBackground(new java.awt.Color(204, 204, 204));
+        pnGestorInicio.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        pnMainTitle9.setkBorderRadius(0);
+        pnMainTitle9.setkEndColor(new java.awt.Color(204, 0, 204));
+        pnMainTitle9.setkStartColor(new java.awt.Color(51, 0, 102));
+        pnMainTitle9.setPreferredSize(new java.awt.Dimension(640, 40));
+
+        jLabel66.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel66.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel66.setText("Início");
+
+        javax.swing.GroupLayout pnMainTitle9Layout = new javax.swing.GroupLayout(pnMainTitle9);
+        pnMainTitle9.setLayout(pnMainTitle9Layout);
+        pnMainTitle9Layout.setHorizontalGroup(
+            pnMainTitle9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnMainTitle9Layout.createSequentialGroup()
+                .addGap(289, 289, 289)
+                .addComponent(jLabel66)
+                .addContainerGap(304, Short.MAX_VALUE))
+        );
+        pnMainTitle9Layout.setVerticalGroup(
+            pnMainTitle9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnMainTitle9Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel66)
+                .addContainerGap())
+        );
+
+        pnGestorInicio.add(pnMainTitle9, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 0, 640, 40));
+
+        jPanel12.setBackground(new java.awt.Color(204, 204, 204));
+        jPanel12.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Seus dados", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 11))); // NOI18N
+
+        taInfoGestor.setEditable(false);
+        taInfoGestor.setColumns(20);
+        taInfoGestor.setRows(5);
+        jScrollPane16.setViewportView(taInfoGestor);
+
+        javax.swing.GroupLayout jPanel12Layout = new javax.swing.GroupLayout(jPanel12);
+        jPanel12.setLayout(jPanel12Layout);
+        jPanel12Layout.setHorizontalGroup(
+            jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel12Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane16, javax.swing.GroupLayout.DEFAULT_SIZE, 588, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanel12Layout.setVerticalGroup(
+            jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel12Layout.createSequentialGroup()
+                .addComponent(jScrollPane16, javax.swing.GroupLayout.PREFERRED_SIZE, 203, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 214, Short.MAX_VALUE))
+        );
+
+        pnGestorInicio.add(jPanel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 50, 620, 440));
+
+        ldGestor.add(pnGestorInicio, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 500));
+
+        pnAnalisarReceitas.setBackground(new java.awt.Color(204, 204, 204));
+        pnAnalisarReceitas.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        pnMainTitle11.setkBorderRadius(0);
+        pnMainTitle11.setkEndColor(new java.awt.Color(204, 0, 204));
+        pnMainTitle11.setkStartColor(new java.awt.Color(51, 0, 102));
+        pnMainTitle11.setPreferredSize(new java.awt.Dimension(640, 40));
+
+        jLabel73.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel73.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel73.setText("Analisar Receitas");
+
+        javax.swing.GroupLayout pnMainTitle11Layout = new javax.swing.GroupLayout(pnMainTitle11);
+        pnMainTitle11.setLayout(pnMainTitle11Layout);
+        pnMainTitle11Layout.setHorizontalGroup(
+            pnMainTitle11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnMainTitle11Layout.createSequentialGroup()
+                .addContainerGap(252, Short.MAX_VALUE)
+                .addComponent(jLabel73)
+                .addGap(243, 243, 243))
+        );
+        pnMainTitle11Layout.setVerticalGroup(
+            pnMainTitle11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnMainTitle11Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel73)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        pnAnalisarReceitas.add(pnMainTitle11, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 0, 640, 40));
+
+        jPanel16.setBackground(new java.awt.Color(204, 204, 204));
+        jPanel16.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED, null, null, null, new java.awt.Color(102, 0, 102)));
+
+        taReceitas.setEditable(false);
+        taReceitas.setColumns(20);
+        taReceitas.setRows(5);
+        jScrollPane22.setViewportView(taReceitas);
+
+        lbTotalReceitas.setText("Total de Receitas: R$ 0");
+
+        javax.swing.GroupLayout jPanel16Layout = new javax.swing.GroupLayout(jPanel16);
+        jPanel16.setLayout(jPanel16Layout);
+        jPanel16Layout.setHorizontalGroup(
+            jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel16Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane22, javax.swing.GroupLayout.DEFAULT_SIZE, 594, Short.MAX_VALUE)
+                    .addComponent(lbTotalReceitas, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        jPanel16Layout.setVerticalGroup(
+            jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel16Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane22, javax.swing.GroupLayout.PREFERRED_SIZE, 353, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(lbTotalReceitas)
+                .addContainerGap(35, Short.MAX_VALUE))
+        );
+
+        pnAnalisarReceitas.add(jPanel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 50, 620, 430));
+
+        ldGestor.add(pnAnalisarReceitas, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 500));
+
+        pnRelatorioFinanc.setBackground(new java.awt.Color(204, 204, 204));
+        pnRelatorioFinanc.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        pnMainTitle13.setkBorderRadius(0);
+        pnMainTitle13.setkEndColor(new java.awt.Color(204, 0, 204));
+        pnMainTitle13.setkStartColor(new java.awt.Color(51, 0, 102));
+        pnMainTitle13.setPreferredSize(new java.awt.Dimension(640, 40));
+
+        jLabel85.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel85.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel85.setText("Minhas Doações");
+
+        javax.swing.GroupLayout pnMainTitle13Layout = new javax.swing.GroupLayout(pnMainTitle13);
+        pnMainTitle13.setLayout(pnMainTitle13Layout);
+        pnMainTitle13Layout.setHorizontalGroup(
+            pnMainTitle13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnMainTitle13Layout.createSequentialGroup()
+                .addGap(248, 248, 248)
+                .addComponent(jLabel85)
+                .addContainerGap(253, Short.MAX_VALUE))
+        );
+        pnMainTitle13Layout.setVerticalGroup(
+            pnMainTitle13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnMainTitle13Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel85)
+                .addContainerGap())
+        );
+
+        pnRelatorioFinanc.add(pnMainTitle13, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 0, 640, 40));
+
+        jPanel18.setBackground(new java.awt.Color(204, 204, 204));
+        jPanel18.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED, null, null, null, new java.awt.Color(102, 0, 102)));
+
+        jLabel86.setText("Doações pendentes");
+
+        jLabel87.setText("Doações aceitas");
+
+        taDoacoesPendentes1.setEditable(false);
+        taDoacoesPendentes1.setColumns(20);
+        taDoacoesPendentes1.setRows(5);
+        jScrollPane24.setViewportView(taDoacoesPendentes1);
+
+        taDoacoesAceitas1.setEditable(false);
+        taDoacoesAceitas1.setColumns(20);
+        taDoacoesAceitas1.setRows(5);
+        jScrollPane25.setViewportView(taDoacoesAceitas1);
+
+        javax.swing.GroupLayout jPanel18Layout = new javax.swing.GroupLayout(jPanel18);
+        jPanel18.setLayout(jPanel18Layout);
+        jPanel18Layout.setHorizontalGroup(
+            jPanel18Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel18Layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jLabel86)
+                .addGap(257, 257, 257))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel18Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel18Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane25)
+                    .addComponent(jScrollPane24))
+                .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel18Layout.createSequentialGroup()
+                .addContainerGap(269, Short.MAX_VALUE)
+                .addComponent(jLabel87)
+                .addGap(267, 267, 267))
+        );
+        jPanel18Layout.setVerticalGroup(
+            jPanel18Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel18Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel86)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane24, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel87)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane25, javax.swing.GroupLayout.DEFAULT_SIZE, 191, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        pnRelatorioFinanc.add(jPanel18, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 50, 620, 430));
+
+        ldGestor.add(pnRelatorioFinanc, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 500));
+
+        pnAnalisarDespesas.setBackground(new java.awt.Color(204, 204, 204));
+        pnAnalisarDespesas.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        pnMainTitle14.setkBorderRadius(0);
+        pnMainTitle14.setkEndColor(new java.awt.Color(204, 0, 204));
+        pnMainTitle14.setkStartColor(new java.awt.Color(51, 0, 102));
+        pnMainTitle14.setPreferredSize(new java.awt.Dimension(640, 40));
+
+        jLabel89.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel89.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel89.setText("Analisar Despesas");
+
+        javax.swing.GroupLayout pnMainTitle14Layout = new javax.swing.GroupLayout(pnMainTitle14);
+        pnMainTitle14.setLayout(pnMainTitle14Layout);
+        pnMainTitle14Layout.setHorizontalGroup(
+            pnMainTitle14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnMainTitle14Layout.createSequentialGroup()
+                .addContainerGap(254, Short.MAX_VALUE)
+                .addComponent(jLabel89)
+                .addGap(234, 234, 234))
+        );
+        pnMainTitle14Layout.setVerticalGroup(
+            pnMainTitle14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnMainTitle14Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel89)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        pnAnalisarDespesas.add(pnMainTitle14, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 0, 640, 40));
+
+        jPanel19.setBackground(new java.awt.Color(204, 204, 204));
+        jPanel19.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED, null, null, null, new java.awt.Color(102, 0, 102)));
+
+        taDespesas.setEditable(false);
+        taDespesas.setColumns(20);
+        taDespesas.setRows(5);
+        jScrollPane26.setViewportView(taDespesas);
+
+        lbTotalDespesas.setText("Total de Despesas: R$ 0");
+
+        javax.swing.GroupLayout jPanel19Layout = new javax.swing.GroupLayout(jPanel19);
+        jPanel19.setLayout(jPanel19Layout);
+        jPanel19Layout.setHorizontalGroup(
+            jPanel19Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel19Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel19Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane26, javax.swing.GroupLayout.DEFAULT_SIZE, 594, Short.MAX_VALUE)
+                    .addComponent(lbTotalDespesas, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        jPanel19Layout.setVerticalGroup(
+            jPanel19Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel19Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane26, javax.swing.GroupLayout.PREFERRED_SIZE, 353, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(lbTotalDespesas)
+                .addContainerGap(35, Short.MAX_VALUE))
+        );
+
+        pnAnalisarDespesas.add(jPanel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 50, 620, 430));
+
+        ldGestor.add(pnAnalisarDespesas, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 500));
+
+        pnCadastrarFunc.setBackground(new java.awt.Color(204, 204, 204));
+        pnCadastrarFunc.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        pnCdVolTitle4.setkBorderRadius(0);
+        pnCdVolTitle4.setkEndColor(new java.awt.Color(204, 0, 204));
+        pnCdVolTitle4.setkStartColor(new java.awt.Color(51, 0, 102));
+        pnCdVolTitle4.setPreferredSize(new java.awt.Dimension(640, 40));
+
+        jLabel71.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel71.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel71.setText("Cadastrar Funcionário");
+
+        javax.swing.GroupLayout pnCdVolTitle4Layout = new javax.swing.GroupLayout(pnCdVolTitle4);
+        pnCdVolTitle4.setLayout(pnCdVolTitle4Layout);
+        pnCdVolTitle4Layout.setHorizontalGroup(
+            pnCdVolTitle4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnCdVolTitle4Layout.createSequentialGroup()
+                .addGap(232, 232, 232)
+                .addComponent(jLabel71)
+                .addContainerGap(222, Short.MAX_VALUE))
+        );
+        pnCdVolTitle4Layout.setVerticalGroup(
+            pnCdVolTitle4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnCdVolTitle4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel71)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        pnCadastrarFunc.add(pnCdVolTitle4, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 0, -1, -1));
+
+        pnDados2.setBackground(new java.awt.Color(204, 204, 204));
+        pnDados2.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED, null, new java.awt.Color(255, 255, 255), null, new java.awt.Color(102, 0, 102)));
+
+        try {
+            ftfGestorTelefone.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.MaskFormatter("(##)#####-####")));
+        } catch (java.text.ParseException ex) {
+            ex.printStackTrace();
+        }
+
+        jLabel72.setText("Nome");
+
+        jLabel74.setText("Telefone");
+
+        jLabel75.setText("CPF");
+
+        try {
+            ftfGestorCPF.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.MaskFormatter("###.###.###-##")));
+        } catch (java.text.ParseException ex) {
+            ex.printStackTrace();
+        }
+
+        jLabel79.setText("Sexo");
+
+        cbGestorSexo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Masculino", "Feminino" }));
+
+        javax.swing.GroupLayout pnDados2Layout = new javax.swing.GroupLayout(pnDados2);
+        pnDados2.setLayout(pnDados2Layout);
+        pnDados2Layout.setHorizontalGroup(
+            pnDados2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnDados2Layout.createSequentialGroup()
+                .addGroup(pnDados2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(pnDados2Layout.createSequentialGroup()
+                        .addGap(21, 21, 21)
+                        .addComponent(jLabel72)
+                        .addGap(4, 4, 4)
+                        .addComponent(tfGestorNome, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(pnDados2Layout.createSequentialGroup()
+                        .addGap(6, 6, 6)
+                        .addComponent(jLabel74)
+                        .addGap(4, 4, 4)
+                        .addComponent(ftfGestorTelefone, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(pnDados2Layout.createSequentialGroup()
+                        .addGap(29, 29, 29)
+                        .addComponent(jLabel75)
+                        .addGap(4, 4, 4)
+                        .addComponent(ftfGestorCPF, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(pnDados2Layout.createSequentialGroup()
+                        .addGap(24, 24, 24)
+                        .addComponent(jLabel79)
+                        .addGap(4, 4, 4)
+                        .addComponent(cbGestorSexo, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(10, 10, 10))
+        );
+        pnDados2Layout.setVerticalGroup(
+            pnDados2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnDados2Layout.createSequentialGroup()
+                .addGroup(pnDados2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(pnDados2Layout.createSequentialGroup()
+                        .addGap(3, 3, 3)
+                        .addComponent(jLabel72))
+                    .addComponent(tfGestorNome, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(6, 6, 6)
+                .addGroup(pnDados2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(pnDados2Layout.createSequentialGroup()
+                        .addGap(3, 3, 3)
+                        .addComponent(jLabel74))
+                    .addComponent(ftfGestorTelefone, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(6, 6, 6)
+                .addGroup(pnDados2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(pnDados2Layout.createSequentialGroup()
+                        .addGap(3, 3, 3)
+                        .addComponent(jLabel75))
+                    .addComponent(ftfGestorCPF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(6, 6, 6)
+                .addGroup(pnDados2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(pnDados2Layout.createSequentialGroup()
+                        .addGap(3, 3, 3)
+                        .addComponent(jLabel79))
+                    .addComponent(cbGestorSexo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(146, Short.MAX_VALUE))
+        );
+
+        pnCadastrarFunc.add(pnDados2, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 60, 168, 250));
+
+        btCadastrarVolPF1.setText("Cadastrar");
+        btCadastrarVolPF1.setFont(new java.awt.Font("Segoe UI", 0, 12)); // NOI18N
+        btCadastrarVolPF1.setkEndColor(new java.awt.Color(233, 193, 253));
+        btCadastrarVolPF1.setkHoverEndColor(new java.awt.Color(236, 174, 243));
+        btCadastrarVolPF1.setkHoverForeGround(new java.awt.Color(153, 0, 255));
+        btCadastrarVolPF1.setkHoverStartColor(new java.awt.Color(221, 143, 253));
+        btCadastrarVolPF1.setkPressedColor(new java.awt.Color(250, 209, 254));
+        btCadastrarVolPF1.setkStartColor(new java.awt.Color(199, 96, 230));
+        btCadastrarVolPF1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btCadastrarVolPF1ActionPerformed(evt);
+            }
+        });
+        pnCadastrarFunc.add(btCadastrarVolPF1, new org.netbeans.lib.awtextra.AbsoluteConstraints(650, 320, 110, 30));
+
+        pnEndereco2.setBackground(new java.awt.Color(204, 204, 204));
+        pnEndereco2.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED, null, null, null, new java.awt.Color(102, 0, 102)));
+
+        jLabel81.setText("Rua");
+
+        jLabel82.setText("Número");
+
+        jLabel83.setText("Complemento");
+
+        jLabel84.setText("Bairro");
+
+        jLabel96.setText("Cidade");
+
+        jLabel97.setText("UF");
+
+        jLabel98.setText("CEP");
+
+        cbGestorUF.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO" }));
+
+        try {
+            ftfGestorCEP.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.MaskFormatter("#####-###")));
+        } catch (java.text.ParseException ex) {
+            ex.printStackTrace();
+        }
+
+        javax.swing.GroupLayout pnEndereco2Layout = new javax.swing.GroupLayout(pnEndereco2);
+        pnEndereco2.setLayout(pnEndereco2Layout);
+        pnEndereco2Layout.setHorizontalGroup(
+            pnEndereco2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnEndereco2Layout.createSequentialGroup()
+                .addGroup(pnEndereco2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(pnEndereco2Layout.createSequentialGroup()
+                        .addComponent(jLabel84)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(tfGestorBairro, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(pnEndereco2Layout.createSequentialGroup()
+                        .addComponent(jLabel81)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(tfGestorRua, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(pnEndereco2Layout.createSequentialGroup()
+                        .addComponent(jLabel96)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(tfGestorCidade, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(pnEndereco2Layout.createSequentialGroup()
+                        .addComponent(jLabel83)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(tfGestorComplemento, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(pnEndereco2Layout.createSequentialGroup()
+                        .addGroup(pnEndereco2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel98)
+                            .addComponent(jLabel82)
+                            .addComponent(jLabel97))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(pnEndereco2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(ftfGestorCEP, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(pnEndereco2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(tfGestorNumero, javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(cbGestorUF, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
+                .addGap(0, 25, Short.MAX_VALUE))
+        );
+        pnEndereco2Layout.setVerticalGroup(
+            pnEndereco2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnEndereco2Layout.createSequentialGroup()
+                .addGroup(pnEndereco2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(jLabel81)
+                    .addComponent(tfGestorRua, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(pnEndereco2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(jLabel84)
+                    .addComponent(tfGestorBairro, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(pnEndereco2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(jLabel83)
+                    .addComponent(tfGestorComplemento, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(pnEndereco2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(tfGestorCidade, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel96))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(pnEndereco2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(ftfGestorCEP, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel98))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(pnEndereco2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(tfGestorNumero, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel82))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(pnEndereco2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(cbGestorUF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel97))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        pnCadastrarFunc.add(pnEndereco2, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 60, 200, 250));
+
+        jLabel99.setText("Endereço");
+        pnCadastrarFunc.add(jLabel99, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 46, -1, -1));
+
+        jLabel100.setText("Dados");
+        pnCadastrarFunc.add(jLabel100, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 44, -1, 20));
+
+        jPanel17.setBackground(new java.awt.Color(204, 204, 204));
+        jPanel17.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED, null, null, null, new java.awt.Color(102, 0, 102)));
+
+        jLabel101.setText("Usuário");
+
+        jLabel102.setText("Senha");
+
+        javax.swing.GroupLayout jPanel17Layout = new javax.swing.GroupLayout(jPanel17);
+        jPanel17.setLayout(jPanel17Layout);
+        jPanel17Layout.setHorizontalGroup(
+            jPanel17Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel17Layout.createSequentialGroup()
+                .addContainerGap(14, Short.MAX_VALUE)
+                .addGroup(jPanel17Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel101, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel102, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel17Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(tfGestorUsuario)
+                    .addComponent(tfGestorSenha, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE))
+                .addGap(30, 30, 30))
+        );
+        jPanel17Layout.setVerticalGroup(
+            jPanel17Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel17Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel17Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel101)
+                    .addComponent(tfGestorUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel17Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel102)
+                    .addComponent(tfGestorSenha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(187, Short.MAX_VALUE))
+        );
+
+        pnCadastrarFunc.add(jPanel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(570, 60, 190, 250));
+
+        jLabel103.setText("Conta");
+        pnCadastrarFunc.add(jLabel103, new org.netbeans.lib.awtextra.AbsoluteConstraints(650, 44, -1, 20));
+
+        ldGestor.add(pnCadastrarFunc, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 500));
+
+        getContentPane().add(ldGestor, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 800, 500));
 
         pack();
         setLocationRelativeTo(null);
@@ -2443,7 +3921,10 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
     }//GEN-LAST:event_tfLoginActionPerformed
 
     private void btEntregasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btEntregasActionPerformed
-        // TODO add your handling code here:
+        resetLayers();
+		pnFuncionario.setVisible(true);
+		pnGerenciarEntrega.setVisible(true);
+		jLDoacoes.setModel(converterDoacoes());
     }//GEN-LAST:event_btEntregasActionPerformed
 
     private void btCadastroVoluntarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btCadastroVoluntarioActionPerformed
@@ -2482,7 +3963,10 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
     }//GEN-LAST:event_btCadastroTrabalhoActionPerformed
 
     private void btAceitarDoacaoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btAceitarDoacaoActionPerformed
-        // TODO add your handling code here:
+        resetLayers();
+		pnAceitarDoacao.setVisible(true);
+		pnFuncionario.setVisible(true);
+		jLDoacoesPendentes.setModel(converterDoacoesPendentes());
     }//GEN-LAST:event_btAceitarDoacaoActionPerformed
 
     private void btRemoverVoluntarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btRemoverVoluntarioActionPerformed
@@ -2493,12 +3977,20 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
     }//GEN-LAST:event_btRemoverVoluntarioActionPerformed
 
     private void btRelatoriosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btRelatoriosActionPerformed
-        // TODO add your handling code here:
+		escreverArquivoE.println(gerarEventos());
+		escreverArquivoD.printf("%s", gerarDoacoes());
+		JOptionPane.showMessageDialog(rootPane, "Arquivo Eventos.txt e Doações.txt gerados com sucesso!", "Relatórios", JOptionPane.INFORMATION_MESSAGE);
+		try {
+			arquivoDoacoes.close();
+		} catch (IOException ex) {
+			Logger.getLogger(MoraisVoluntariado.class.getName()).log(Level.SEVERE, null, ex);
+		}
+		try {
+			arquivoEventos.close();
+		} catch (IOException ex) {
+			Logger.getLogger(MoraisVoluntariado.class.getName()).log(Level.SEVERE, null, ex);
+		}
     }//GEN-LAST:event_btRelatoriosActionPerformed
-
-    private void btImportarDadosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btImportarDadosActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btImportarDadosActionPerformed
 
     private void pfSenhaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pfSenhaActionPerformed
         // TODO add your handling code here:
@@ -2571,6 +4063,8 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
 					if(this.listaGestores.get(i).getIdConta() == this.accountID){
 						this.userID = i;
 						i = this.listaGestores.size();
+						resetLayers();
+						enableGestor();
 					}
 				}
 			}
@@ -2589,6 +4083,8 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
 					if(this.listaVoluntarios.get(i).getIdConta() == this.accountID){
 						this.userID = i;
 						i = this.listaVoluntarios.size();
+						resetLayers();
+						enableVoluntarioPJ();
 					}
 				}
 			}
@@ -2649,7 +4145,7 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
     private void btDoarPFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btDoarPFActionPerformed
         resetLayers();
 		pnVoluntarioPF.setVisible(true);
-		pnDoarPF.setVisible(true);
+		pnDoar.setVisible(true);
     }//GEN-LAST:event_btDoarPFActionPerformed
 
     private void btVolPFLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btVolPFLogoutActionPerformed
@@ -2687,9 +4183,13 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
 		taEventosVolPF.setText(gerarMeusEventosPF());
     }//GEN-LAST:event_btMeusEventosPFActionPerformed
 
-    private void btDoarPF1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btDoarPF1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btDoarPF1ActionPerformed
+    private void btMinhasDoacoesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btMinhasDoacoesActionPerformed
+        resetLayers();
+		pnMinhasDoacoes.setVisible(true); 
+		pnVoluntarioPF.setVisible(true);
+		taDoacoesPendentes.setText(gerarMinhasDoacoesPendentes());
+		taDoacoesAceitas.setText(gerarMinhasDoacoes());
+    }//GEN-LAST:event_btMinhasDoacoesActionPerformed
 
     private void btMeusEventosFuncActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btMeusEventosFuncActionPerformed
         resetLayers();
@@ -2714,7 +4214,6 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
 		enableVoluntarioPF();
 		clearDoarPF();
 		JOptionPane.showMessageDialog(rootPane, "Doação realizada com sucesso!", "Doar", JOptionPane.INFORMATION_MESSAGE);
-		JOptionPane.showMessageDialog(rootPane, listaDoacoesPendentes.get(0));
     }//GEN-LAST:event_btFinalizarDoacaoPFActionPerformed
 
     private void ftfDuracaoInicioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ftfDuracaoInicioActionPerformed
@@ -2747,6 +4246,147 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
 		JOptionPane.showMessageDialog(rootPane, "Evento cadastrado com sucesso!", "Cadastrar Evento", JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_btCadastrarEventoActionPerformed
 
+    private void btPatrocinarEventoSelecionadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btPatrocinarEventoSelecionadoActionPerformed
+        if(!listaEventos.get(jLEventosPatrocinar.getAnchorSelectionIndex()).verificarPatrocinadorRepetido(listaVoluntarios.get(userID))){
+			listaEventos.get(jLEventosPatrocinar.getAnchorSelectionIndex()).addPatrocinador(listaVoluntarios.get(userID));
+			JOptionPane.showMessageDialog(rootPane, "Evento patrocinado com sucesso!", "Patrocinar Evento", JOptionPane.INFORMATION_MESSAGE);
+		}
+		else{
+			JOptionPane.showMessageDialog(rootPane, "Você já está patrocinando este evento!", "Patrocinar Evento", JOptionPane.ERROR_MESSAGE);
+		}
+    }//GEN-LAST:event_btPatrocinarEventoSelecionadoActionPerformed
+
+    private void btVolPJInicioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btVolPJInicioActionPerformed
+        resetLayers();
+		enableVoluntarioPJ();
+    }//GEN-LAST:event_btVolPJInicioActionPerformed
+
+    private void btPatrocinarEventoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btPatrocinarEventoActionPerformed
+        resetLayers();
+		pnVoluntarioPJ.setVisible(true);
+		pnPatrocinarEvento.setVisible(true);
+		jLEventosPatrocinar.setModel(converterEventosLista());
+    }//GEN-LAST:event_btPatrocinarEventoActionPerformed
+
+    private void btDoarPJActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btDoarPJActionPerformed
+        resetLayers();
+		pnVoluntarioPJ.setVisible(true);
+		pnDoar.setVisible(true);
+    }//GEN-LAST:event_btDoarPJActionPerformed
+
+    private void btVolPJLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btVolPJLogoutActionPerformed
+        Object[] botoesDesconectar = {"Desconectar", "Voltar"};
+		Object choice = JOptionPane.showOptionDialog(rootPane, "Tem certeza que deseja sair?", "Desconectar", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, botoesDesconectar, botoesDesconectar);
+		if(choice.toString().equals("0")){
+			connected = false;
+			userID = 0;
+			resetLayers();
+			loginPanel.setVisible(true);
+		}
+    }//GEN-LAST:event_btVolPJLogoutActionPerformed
+
+    private void btMeusEventosPJActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btMeusEventosPJActionPerformed
+        resetLayers();
+		pnEventosPatrocinados.setVisible(true); 
+		pnVoluntarioPJ.setVisible(true);
+		taEventosPatrocinados.setText(gerarMeusEventosPJ());
+    }//GEN-LAST:event_btMeusEventosPJActionPerformed
+
+    private void btMinhasDoacoesPJActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btMinhasDoacoesPJActionPerformed
+        resetLayers();
+		pnMinhasDoacoes.setVisible(true); 
+		pnVoluntarioPJ.setVisible(true);
+		taDoacoesPendentes.setText(gerarMinhasDoacoesPendentes());
+		taDoacoesAceitas.setText(gerarMinhasDoacoes());
+    }//GEN-LAST:event_btMinhasDoacoesPJActionPerformed
+
+    private void btVerInfoEventoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btVerInfoEventoActionPerformed
+        JOptionPane.showMessageDialog(rootPane, listaEventos.get(jLEventosPatrocinar.getAnchorSelectionIndex()));
+    }//GEN-LAST:event_btVerInfoEventoActionPerformed
+
+    private void btGestorInicioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btGestorInicioActionPerformed
+        resetLayers();
+		enableGestor();
+    }//GEN-LAST:event_btGestorInicioActionPerformed
+
+    private void btGestorAnalisarReceitasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btGestorAnalisarReceitasActionPerformed
+        resetLayers();
+		pnGestor.setVisible(true);
+		pnAnalisarReceitas.setVisible(true);
+		taReceitas.setText(gerarInfoDoacoes());
+		lbTotalReceitas.setText(String.format("Total receitas R$ %f", gerarInfoDinheiro()));
+    }//GEN-LAST:event_btGestorAnalisarReceitasActionPerformed
+
+    private void btGestorAnalisarDespesasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btGestorAnalisarDespesasActionPerformed
+        resetLayers();
+		pnGestor.setVisible(true);
+		pnAnalisarDespesas.setVisible(true);
+		taDespesas.setText(gerarInfoEventos());
+		lbTotalDespesas.setText(String.format("Total despesas R$ %f", gerarTotalDespesas()));
+    }//GEN-LAST:event_btGestorAnalisarDespesasActionPerformed
+
+    private void btGestorDesconectarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btGestorDesconectarActionPerformed
+        Object[] botoesDesconectar = {"Desconectar", "Voltar"};
+		Object choice = JOptionPane.showOptionDialog(rootPane, "Tem certeza que deseja sair?", "Desconectar", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, botoesDesconectar, botoesDesconectar);
+		if(choice.toString().equals("0")){
+			connected = false;
+			userID = 0;
+			resetLayers();
+			loginPanel.setVisible(true);
+		}
+    }//GEN-LAST:event_btGestorDesconectarActionPerformed
+
+    private void btGestorCadastrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btGestorCadastrarActionPerformed
+        resetLayers();
+		pnGestor.setVisible(true);
+		pnCadastrarFunc.setVisible(true);
+    }//GEN-LAST:event_btGestorCadastrarActionPerformed
+
+    private void btGestorRelatorioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btGestorRelatorioActionPerformed
+        String total = String.format("Total Receitas: R$ %f\nTotal Despesas: R$ %f", gerarInfoDinheiro(), gerarTotalDespesas());
+		escreverArquivoF.println(total);
+		escreverArquivoF.close();
+		JOptionPane.showMessageDialog(rootPane, "Arquivo Relatório Financeiro.txt gerado com sucesso!", "Relatório Financeiro", JOptionPane.INFORMATION_MESSAGE);
+    }//GEN-LAST:event_btGestorRelatorioActionPerformed
+
+    private void btCadastrarVolPF1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btCadastrarVolPF1ActionPerformed
+        listaContas.add(new Conta(idCount, tfGestorUsuario.getText(), tfGestorSenha.getText(), "Gestor"));
+		
+		listaGestores.add(new Gestor(idCount, tfGestorNome.getText(), cbGestorSexo.getSelectedItem().toString(), ftfGestorCPF.getText(), ftfGestorTelefone.getText(), new Endereco(tfGestorRua.getText(), tfGestorNumero.getText(), tfGestorComplemento.getText(), tfGestorBairro.getText(), tfGestorCidade.getText(), cbGestorUF.getSelectedItem().toString(), ftfGestorCEP.getText())));
+		JOptionPane.showMessageDialog(rootPane, "Voluntário cadastrado com sucesso!");
+		idCount++;
+		clearGestor();
+		resetLayers();
+		enableGestor();
+    }//GEN-LAST:event_btCadastrarVolPF1ActionPerformed
+
+    private void btInfoDoacaoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btInfoDoacaoActionPerformed
+        JOptionPane.showMessageDialog(rootPane, listaDoacoesPendentes.get(jLDoacoesPendentes.getAnchorSelectionIndex()), "Doação", JOptionPane.INFORMATION_MESSAGE);
+    }//GEN-LAST:event_btInfoDoacaoActionPerformed
+
+    private void btAceitarDoacaoSelecionadaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btAceitarDoacaoSelecionadaActionPerformed
+		listaDoacoes.add(listaDoacoesPendentes.get(jLDoacoesPendentes.getAnchorSelectionIndex()));
+		listaDoacoesPendentes.remove(jLDoacoesPendentes.getAnchorSelectionIndex());
+		JOptionPane.showMessageDialog(rootPane, "Doação aceita com sucesso!", "Aceitar doação", JOptionPane.INFORMATION_MESSAGE);
+		jLDoacoesPendentes.setModel(converterDoacoesPendentes());
+    }//GEN-LAST:event_btAceitarDoacaoSelecionadaActionPerformed
+
+    private void btRecusarDoacaoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btRecusarDoacaoActionPerformed
+        listaDoacoesPendentes.remove(jLDoacoesPendentes.getAnchorSelectionIndex());
+		JOptionPane.showMessageDialog(rootPane, "Doação recusada com sucesso!", "Recusar doação", JOptionPane.INFORMATION_MESSAGE);
+		jLDoacoesPendentes.setModel(converterDoacoesPendentes());
+    }//GEN-LAST:event_btRecusarDoacaoActionPerformed
+
+    private void btInfoDoacao1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btInfoDoacao1ActionPerformed
+        JOptionPane.showMessageDialog(rootPane, listaDoacoes.get(jLDoacoes.getAnchorSelectionIndex()), "Doação", JOptionPane.INFORMATION_MESSAGE);
+    }//GEN-LAST:event_btInfoDoacao1ActionPerformed
+
+    private void btConfirmarEntregaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btConfirmarEntregaActionPerformed
+        listaDoacoes.get(jLDoacoes.getAnchorSelectionIndex()).setEntregue(true);
+		JOptionPane.showMessageDialog(rootPane, "Status alterado para entregue!", "Gerenciar Entrega", JOptionPane.INFORMATION_MESSAGE);
+		jLDoacoes.setModel(converterDoacoes());
+    }//GEN-LAST:event_btConfirmarEntregaActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -2778,13 +4418,18 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new MoraisVoluntariado().setVisible(true);
+				try {
+					new MoraisVoluntariado().setVisible(true);
+				} catch (IOException ex) {
+					Logger.getLogger(MoraisVoluntariado.class.getName()).log(Level.SEVERE, null, ex);
+				}
             }
         });
 	}
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private keeptoo.KButton btAceitarDoacao;
+    private keeptoo.KButton btAceitarDoacaoSelecionada;
     private keeptoo.KButton btAceitarTrabalho;
     private keeptoo.KButton btAddGasto;
     private keeptoo.KButton btAddItem;
@@ -2792,23 +4437,38 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
     private keeptoo.KButton btCadastrarEvento;
     private keeptoo.KButton btCadastrarTrabalho;
     private keeptoo.KButton btCadastrarVolPF;
+    private keeptoo.KButton btCadastrarVolPF1;
     private keeptoo.KButton btCadastrarVolPJ;
     private keeptoo.KButton btCadastroEvento;
     private keeptoo.KButton btCadastroTrabalho;
     private keeptoo.KButton btCadastroVoluntario;
+    private keeptoo.KButton btConfirmarEntrega;
     private keeptoo.KButton btDoarPF;
-    private keeptoo.KButton btDoarPF1;
+    private keeptoo.KButton btDoarPJ;
     private keeptoo.KButton btEntregas;
     private keeptoo.KButton btFinalizarDoacaoPF;
     private keeptoo.KButton btFuncInicio;
     private keeptoo.KButton btFuncLogout1;
-    private keeptoo.KButton btImportarDados;
+    private keeptoo.KButton btGestorAnalisarDespesas;
+    private keeptoo.KButton btGestorAnalisarReceitas;
+    private keeptoo.KButton btGestorCadastrar;
+    private keeptoo.KButton btGestorDesconectar;
+    private keeptoo.KButton btGestorInicio;
+    private keeptoo.KButton btGestorRelatorio;
+    private keeptoo.KButton btInfoDoacao;
+    private keeptoo.KButton btInfoDoacao1;
     private keeptoo.KButton btInfoEvento;
     private keeptoo.KButton btInfoFuncionario;
     private keeptoo.KButton btInfoVol;
     private keeptoo.KButton btLogin;
     private keeptoo.KButton btMeusEventosFunc;
     private keeptoo.KButton btMeusEventosPF;
+    private keeptoo.KButton btMeusEventosPJ;
+    private keeptoo.KButton btMinhasDoacoes;
+    private keeptoo.KButton btMinhasDoacoesPJ;
+    private keeptoo.KButton btPatrocinarEvento;
+    private keeptoo.KButton btPatrocinarEventoSelecionado;
+    private keeptoo.KButton btRecusarDoacao;
     private keeptoo.KButton btRelatorios;
     private keeptoo.KButton btRemoveGasto;
     private keeptoo.KButton btRemoveItem;
@@ -2816,9 +4476,14 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
     private keeptoo.KButton btRemoverVol;
     private keeptoo.KButton btRemoverVoluntario;
     private keeptoo.KButton btTrabalharEvento;
+    private keeptoo.KButton btVerInfoEvento;
     private keeptoo.KButton btVerTrabalhos;
     private keeptoo.KButton btVolPFInicio;
     private keeptoo.KButton btVolPFLogout;
+    private keeptoo.KButton btVolPJInicio;
+    private keeptoo.KButton btVolPJLogout;
+    private javax.swing.JComboBox<String> cbGestorSexo;
+    private javax.swing.JComboBox<String> cbGestorUF;
     private javax.swing.JComboBox<String> cbModoEntrega;
     private javax.swing.JCheckBox cbRepetirDoacao;
     private javax.swing.JComboBox<String> cbVolPFSexo;
@@ -2829,6 +4494,9 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
     private javax.swing.JFormattedTextField ftfDataEvento;
     private javax.swing.JFormattedTextField ftfDuracaoFim;
     private javax.swing.JFormattedTextField ftfDuracaoInicio;
+    private javax.swing.JFormattedTextField ftfGestorCEP;
+    private javax.swing.JFormattedTextField ftfGestorCPF;
+    private javax.swing.JFormattedTextField ftfGestorTelefone;
     private javax.swing.JFormattedTextField ftfVolPFCEP;
     private javax.swing.JFormattedTextField ftfVolPFCPF;
     private javax.swing.JFormattedTextField ftfVolPFTelefone;
@@ -2837,7 +4505,10 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
     private javax.swing.JFormattedTextField ftfVolPJIE;
     private javax.swing.JFormattedTextField ftfVolPJTelefone;
     private javax.swing.JLabel iconMV;
+    private javax.swing.JList<String> jLDoacoes;
+    private javax.swing.JList<String> jLDoacoesPendentes;
     private javax.swing.JList<String> jLEventos;
+    private javax.swing.JList<String> jLEventosPatrocinar;
     private javax.swing.JList<String> jLEventosTrabalhos;
     private javax.swing.JList<String> jLFuncionarios;
     private javax.swing.JList<String> jLGastos;
@@ -2847,6 +4518,10 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
     private javax.swing.JList<String> jLVoluntarios;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel100;
+    private javax.swing.JLabel jLabel101;
+    private javax.swing.JLabel jLabel102;
+    private javax.swing.JLabel jLabel103;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
@@ -2904,19 +4579,56 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel60;
     private javax.swing.JLabel jLabel61;
     private javax.swing.JLabel jLabel62;
+    private javax.swing.JLabel jLabel63;
+    private javax.swing.JLabel jLabel64;
+    private javax.swing.JLabel jLabel65;
+    private javax.swing.JLabel jLabel66;
+    private javax.swing.JLabel jLabel67;
+    private javax.swing.JLabel jLabel68;
+    private javax.swing.JLabel jLabel69;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel70;
+    private javax.swing.JLabel jLabel71;
+    private javax.swing.JLabel jLabel72;
+    private javax.swing.JLabel jLabel73;
+    private javax.swing.JLabel jLabel74;
+    private javax.swing.JLabel jLabel75;
     private javax.swing.JLabel jLabel76;
     private javax.swing.JLabel jLabel77;
     private javax.swing.JLabel jLabel78;
+    private javax.swing.JLabel jLabel79;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel80;
+    private javax.swing.JLabel jLabel81;
+    private javax.swing.JLabel jLabel82;
+    private javax.swing.JLabel jLabel83;
+    private javax.swing.JLabel jLabel84;
+    private javax.swing.JLabel jLabel85;
+    private javax.swing.JLabel jLabel86;
+    private javax.swing.JLabel jLabel87;
+    private javax.swing.JLabel jLabel88;
+    private javax.swing.JLabel jLabel89;
     private javax.swing.JLabel jLabel9;
+    private javax.swing.JLabel jLabel90;
     private javax.swing.JLabel jLabel91;
     private javax.swing.JLabel jLabel92;
     private javax.swing.JLabel jLabel93;
     private javax.swing.JLabel jLabel94;
     private javax.swing.JLabel jLabel95;
+    private javax.swing.JLabel jLabel96;
+    private javax.swing.JLabel jLabel97;
+    private javax.swing.JLabel jLabel98;
+    private javax.swing.JLabel jLabel99;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel10;
+    private javax.swing.JPanel jPanel11;
+    private javax.swing.JPanel jPanel12;
+    private javax.swing.JPanel jPanel13;
+    private javax.swing.JPanel jPanel14;
+    private javax.swing.JPanel jPanel16;
+    private javax.swing.JPanel jPanel17;
+    private javax.swing.JPanel jPanel18;
+    private javax.swing.JPanel jPanel19;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
@@ -2930,8 +4642,19 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane11;
     private javax.swing.JScrollPane jScrollPane12;
     private javax.swing.JScrollPane jScrollPane13;
+    private javax.swing.JScrollPane jScrollPane14;
+    private javax.swing.JScrollPane jScrollPane15;
+    private javax.swing.JScrollPane jScrollPane16;
+    private javax.swing.JScrollPane jScrollPane17;
+    private javax.swing.JScrollPane jScrollPane18;
+    private javax.swing.JScrollPane jScrollPane19;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane20;
+    private javax.swing.JScrollPane jScrollPane21;
+    private javax.swing.JScrollPane jScrollPane22;
+    private javax.swing.JScrollPane jScrollPane24;
+    private javax.swing.JScrollPane jScrollPane25;
+    private javax.swing.JScrollPane jScrollPane26;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
@@ -2943,12 +4666,22 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
     private javax.swing.JLabel lbSenha;
     private javax.swing.JLabel lbTituloFuncionario;
     private javax.swing.JLabel lbTituloVolPF;
+    private javax.swing.JLabel lbTituloVolPF1;
+    private javax.swing.JLabel lbTituloVolPF2;
+    private javax.swing.JLabel lbTotalDespesas;
     private javax.swing.JLabel lbTotalGastos;
+    private javax.swing.JLabel lbTotalReceitas;
     private javax.swing.JLayeredPane ldFuncionario;
+    private javax.swing.JLayeredPane ldGestor;
     private javax.swing.JLayeredPane ldMenus;
     private javax.swing.JLayeredPane ldVoluntarioPF;
+    private javax.swing.JLayeredPane ldVoluntarioPJ;
     private keeptoo.KGradientPanel loginPanel;
     private javax.swing.JPasswordField pfSenha;
+    private javax.swing.JPanel pnAceitarDoacao;
+    private javax.swing.JPanel pnAnalisarDespesas;
+    private javax.swing.JPanel pnAnalisarReceitas;
+    private javax.swing.JPanel pnCadastrarFunc;
     private javax.swing.JPanel pnCdEvento;
     private javax.swing.JPanel pnCdTrabalho;
     private javax.swing.JPanel pnCdVolPF;
@@ -2956,31 +4689,67 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
     private keeptoo.KGradientPanel pnCdVolTitle;
     private keeptoo.KGradientPanel pnCdVolTitle1;
     private keeptoo.KGradientPanel pnCdVolTitle2;
+    private keeptoo.KGradientPanel pnCdVolTitle4;
     private javax.swing.JPanel pnDados;
     private javax.swing.JPanel pnDados1;
-    private javax.swing.JPanel pnDoarPF;
+    private javax.swing.JPanel pnDados2;
+    private javax.swing.JPanel pnDoar;
     private javax.swing.JPanel pnEndereco;
     private javax.swing.JPanel pnEndereco1;
+    private javax.swing.JPanel pnEndereco2;
+    private javax.swing.JPanel pnEventosPatrocinados;
     private javax.swing.JPanel pnFuncEventos;
     private javax.swing.JPanel pnFuncMain;
     private keeptoo.KGradientPanel pnFuncionario;
+    private javax.swing.JPanel pnGerenciarEntrega;
+    private keeptoo.KGradientPanel pnGestor;
+    private javax.swing.JPanel pnGestorInicio;
     private keeptoo.KGradientPanel pnMainTitle;
     private keeptoo.KGradientPanel pnMainTitle1;
+    private keeptoo.KGradientPanel pnMainTitle10;
+    private keeptoo.KGradientPanel pnMainTitle11;
+    private keeptoo.KGradientPanel pnMainTitle12;
+    private keeptoo.KGradientPanel pnMainTitle13;
+    private keeptoo.KGradientPanel pnMainTitle14;
+    private keeptoo.KGradientPanel pnMainTitle15;
     private keeptoo.KGradientPanel pnMainTitle2;
     private keeptoo.KGradientPanel pnMainTitle3;
     private keeptoo.KGradientPanel pnMainTitle4;
     private keeptoo.KGradientPanel pnMainTitle5;
     private keeptoo.KGradientPanel pnMainTitle6;
+    private keeptoo.KGradientPanel pnMainTitle7;
     private keeptoo.KGradientPanel pnMainTitle8;
+    private keeptoo.KGradientPanel pnMainTitle9;
+    private javax.swing.JPanel pnMinhasDoacoes;
+    private javax.swing.JPanel pnPatrocinarEvento;
+    private keeptoo.KGradientPanel pnPatrocinarTitle;
+    private javax.swing.JPanel pnRelatorioFinanc;
     private javax.swing.JPanel pnRvVol;
     private javax.swing.JPanel pnTbEvento;
+    private javax.swing.JPanel pnVolMain;
     private javax.swing.JPanel pnVolPFEventos;
-    private javax.swing.JPanel pnVolPFMain;
     private keeptoo.KGradientPanel pnVoluntarioPF;
+    private keeptoo.KGradientPanel pnVoluntarioPJ;
+    private javax.swing.JTextArea taDespesas;
+    private javax.swing.JTextArea taDoacoesAceitas;
+    private javax.swing.JTextArea taDoacoesAceitas1;
+    private javax.swing.JTextArea taDoacoesPendentes;
+    private javax.swing.JTextArea taDoacoesPendentes1;
     private javax.swing.JTextArea taEventosFunc;
+    private javax.swing.JTextArea taEventosPatrocinados;
     private javax.swing.JTextArea taEventosVolPF;
     private javax.swing.JTextArea taInfoFuncionario;
+    private javax.swing.JTextArea taInfoGestor;
     private javax.swing.JTextArea taInfoVoluntarioPF;
+    private javax.swing.JTextArea taReceitas;
+    private javax.swing.JTextField tfGestorBairro;
+    private javax.swing.JTextField tfGestorCidade;
+    private javax.swing.JTextField tfGestorComplemento;
+    private javax.swing.JTextField tfGestorNome;
+    private javax.swing.JTextField tfGestorNumero;
+    private javax.swing.JTextField tfGestorRua;
+    private javax.swing.JTextField tfGestorSenha;
+    private javax.swing.JTextField tfGestorUsuario;
     private javax.swing.JTextField tfItemQuantidade;
     private javax.swing.JTextField tfLogin;
     private javax.swing.JTextField tfNomeEvento;
