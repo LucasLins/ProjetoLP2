@@ -66,7 +66,7 @@ public class MoraisVoluntariado extends javax.swing.JFrame {
 		resetLayers();
 		loginPanel.setVisible(true);
 		
-		listaContas.add(new Conta(0, "lucaslins", "88219442", "Gestor"));
+		listaContas.add(new Conta(0, "gestor", "123456", "Gestor"));
 		listaGestores.add(new Gestor(0, "Alana Marques", "Feminino", "123456789", "83982105547", null));
     }
 	
